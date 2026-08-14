@@ -82,10 +82,10 @@
     \sqrt{n} (\hat{\bm{\theta}} - \bm{\theta}) \xrightarrow{d} N\left( 0, \frac{1}{I(\bm{\theta})} \right)
     $ (single-observation $I(\theta)$)
 
-    \item \hl{Score Function}: $U_i(\theta) = \frac{\partial \ln [f(X_i; \theta)]}{\partial \theta}, E_{\theta} (U_i(\theta)) = 0\\
-    $ \hl{Fisher Information}: $I_n(\theta) = E \left\{ -\frac{\partial^2 \ln \left[ f_{\bm{X}}(\bm{x}; \theta) \right]}{\partial \theta^2} \right\}.$\\  
-    Property:$
-    I_n(\theta) = E \left\{ \left( \frac{\partial \ln \left[ f_{\bm{X}}(\bm{x}; \theta) \right]}{\partial \theta} \right)^2 \right\} = E \left\{ -\frac{\partial^2 \ln \left[ f_{\bm{X}}(\bm{x}; \theta) \right]}{\partial \theta^2} \right\}$
+    \item \hl{Score Function}: $U_i(\theta) = \frac{\partial \ln [f(X_i; \theta)]}{\partial \theta}, E_{\theta} (U_i(\theta)) = 0$\\
+    \hl{Fisher Information}: $I_n(\theta) = E \left\{ -\frac{\partial^2 \ln \left[ f_{\bm{X}}(\bm{x}; \theta) \right]}{\partial \theta^2} \right\}.$\\
+    Property:
+    $I_n(\theta) = E \left\{ \left( \frac{\partial \ln \left[ f_{\bm{X}}(\bm{x}; \theta) \right]}{\partial \theta} \right)^2 \right\} = E \left\{ -\frac{\partial^2 \ln \left[ f_{\bm{X}}(\bm{x}; \theta) \right]}{\partial \theta^2} \right\}$
 
     \item \hl{EM algorithm to compute MLE}\\E-step: Calculate the conditional expectation 
     $E[\log f(Y; \theta) | Y_o, \theta^{(k)}] = \frac{\int_{Y_m} [\log f(Y; \theta)] f(Y; \theta^{(k)}) dY_m}{\int_{Y_m} f(Y; \theta^{(k)}) dY_m}.$  

@@ -6,189 +6,206 @@ import other from "../content/notes-other.tex?raw";
 import survival from "../content/survival.md?raw";
 import conformal from "../content/conformal-prediction.md?raw";
 
-export type CollectionId = "foundations" | "inference" | "models" | "prediction";
+export type CollectionId = "foundations" | "inference" | "models" | "applied";
 export type Format = "tex" | "markdown";
+
+export type SectionSelector = {
+  title: string;
+  occurrence?: number;
+  rename?: string;
+  group?: string;
+  expandSubsections?: boolean;
+  includeItems?: string[];
+  excludeItems?: string[];
+};
+
+export type TopicPart = {
+  format: Format;
+  raw: string;
+  selectors?: SectionSelector[];
+};
 
 export type TopicSource = {
   id: string;
   title: string;
-  shortTitle: string;
-  description: string;
   collection: CollectionId;
-  format: Format;
-  raw: string;
-  year?: string;
-  sectionFilter?: string;
-  featured?: boolean;
+  parts: TopicPart[];
 };
 
 export const collections = [
-  {
-    id: "foundations" as const,
-    index: "01",
-    title: "Foundations",
-    description: "The mathematical language beneath statistical reasoning.",
-    color: "#2f6feb",
-  },
-  {
-    id: "inference" as const,
-    index: "02",
-    title: "Inference & study design",
-    description: "From likelihood and estimation to tests and epidemiologic designs.",
-    color: "#7c5cff",
-  },
-  {
-    id: "models" as const,
-    index: "03",
-    title: "Models & computation",
-    description: "Regression, latent-variable methods, causal estimation, and tools.",
-    color: "#00a878",
-  },
-  {
-    id: "prediction" as const,
-    index: "04",
-    title: "Modern prediction",
-    description: "Structured notes on uncertainty for time-to-event and predictive tasks.",
-    color: "#e56b38",
-  },
+  { id: "foundations" as const, index: "I", title: "Foundations" },
+  { id: "inference" as const, index: "II", title: "Inference" },
+  { id: "models" as const, index: "III", title: "Models" },
+  { id: "applied" as const, index: "IV", title: "Applied topics" },
 ];
 
 export const topics: TopicSource[] = [
   {
-    id: "probability",
-    title: "Probability",
-    shortTitle: "Probability",
-    description: "Events, distributions, moments, transformations, survival, and convergence.",
-    collection: "foundations",
-    format: "tex",
-    raw: probability,
-    year: "2024",
-  },
-  {
     id: "real-analysis",
     title: "Real Analysis",
-    shortTitle: "Real analysis",
-    description: "Sets, real numbers, sequences, continuity, differentiation, and integration.",
     collection: "foundations",
-    format: "tex",
-    raw: analysis,
-    year: "2025",
-  },
-  {
-    id: "statistical-inference",
-    title: "Statistical Inference",
-    shortTitle: "Statistical inference",
-    description: "Convergence, maximum likelihood, sufficiency, and unbiased estimation.",
-    collection: "inference",
-    format: "tex",
-    raw: inference,
-    year: "2025",
-  },
-  {
-    id: "biostatistical-methods",
-    title: "Biostatistical Methods",
-    shortTitle: "Biostat methods",
-    description: "A compact field sheet spanning inference, tables, designs, and person-time.",
-    collection: "inference",
-    format: "tex",
-    raw: methods,
-    year: "2024",
-  },
-  {
-    id: "linear-regression",
-    title: "Linear Regression",
-    shortTitle: "Linear regression",
-    description: "OLS geometry, assumptions, inference, diagnostics, and prediction.",
-    collection: "models",
-    format: "tex",
-    raw: other,
-    sectionFilter: "Linear Regression: Important Concepts and Conclusions",
-  },
-  {
-    id: "logistic-regression",
-    title: "Logistic Regression",
-    shortTitle: "Logistic regression",
-    description: "The logit model, likelihood, estimation, interpretation, and regularization.",
-    collection: "models",
-    format: "tex",
-    raw: other,
-    sectionFilter: "Logistic Regression",
-  },
-  {
-    id: "kernel-regression",
-    title: "Kernel Regression",
-    shortTitle: "Kernel regression",
-    description: "Local averaging, bandwidth, bias–variance tradeoffs, and boundary effects.",
-    collection: "models",
-    format: "tex",
-    raw: other,
-    sectionFilter: "Kernel Regression",
-  },
-  {
-    id: "em-algorithm",
-    title: "EM Algorithm",
-    shortTitle: "EM algorithm",
-    description: "Likelihood with latent data and the Gaussian-mixture E/M updates.",
-    collection: "models",
-    format: "tex",
-    raw: other,
-    sectionFilter: "EM Algorithm for MLE with Missing Data",
-  },
-  {
-    id: "causal-aipw",
-    title: "AIPW & Double Robustness",
-    shortTitle: "AIPW / causal",
-    description: "Potential outcomes, identification, IPW, augmentation, and influence functions.",
-    collection: "models",
-    format: "tex",
-    raw: other,
-    sectionFilter: "Augmented Inverse Probability Weighting (AIPW) / Doubly Robust Estimation",
+    parts: [
+      { format: "tex", raw: analysis },
+      { format: "tex", raw: methods, selectors: [{ title: "Notes", rename: "Calculus, Series & Special Functions" }] },
+    ],
   },
   {
     id: "linear-algebra",
-    title: "Linear Algebra Toolkit",
-    shortTitle: "Linear algebra",
-    description: "Matrix derivatives, covariance transformations, and trace identities.",
-    collection: "models",
-    format: "tex",
-    raw: other,
-    sectionFilter: "Linear Algebra",
+    title: "Linear Algebra & Matrix Calculus",
+    collection: "foundations",
+    parts: [{
+      format: "tex",
+      raw: other,
+      selectors: [{ title: "Linear Algebra", expandSubsections: true }],
+    }],
+  },
+  {
+    id: "probability",
+    title: "Probability",
+    collection: "foundations",
+    parts: [
+      {
+        format: "tex",
+        raw: probability,
+        selectors: [
+          { title: "Chapter 1: Introduction to Probability" },
+          { title: "Chapter 2: Conditional Probability and Independence" },
+          { title: "Chapter 3: Random variables and Probability Distributions", rename: "Random Variables", excludeItems: ["Examples of distribution"] },
+          { title: "Chapter 4: Bivariate and Multivariate Distributions", rename: "Multivariate Random Variables" },
+          { title: "Chapter 5: Expectation and Moments" },
+          { title: "Chapter 6: Transformation of Random Variables" },
+          { title: "Chapter 8: Convergence of Random Variables" },
+          { title: "Notes" },
+        ],
+      },
+      {
+        format: "tex",
+        raw: methods,
+        selectors: [
+          { title: "Set and Probability", rename: "Set & Probability Rules" },
+          { title: "Random variables/vectors", rename: "Random Variables & Vectors — Quick Reference", excludeItems: ["Survival Function", "Hazard Function"] },
+          { title: "Expectation", rename: "Expectation — Quick Reference" },
+          { title: "Variance \\& Covariance", rename: "Variance & Covariance" },
+          { title: "Independence", rename: "Independence Criteria" },
+          { title: "Condition", rename: "Conditioning Identities" },
+        ],
+      },
+    ],
   },
   {
     id: "distributions",
-    title: "Distribution Notes",
-    shortTitle: "Distributions",
-    description: "Focused distribution results collected outside the probability sheet.",
+    title: "Common Distributions",
+    collection: "foundations",
+    parts: [
+      { format: "tex", raw: methods, selectors: [{ title: "Distribution Examples", rename: "Discrete and Continuous Families" }] },
+      { format: "tex", raw: probability, selectors: [{ title: "Chapter 3: Random variables and Probability Distributions", rename: "Additional Distribution Notes", includeItems: ["Examples of distribution"] }] },
+      { format: "tex", raw: other, selectors: [{ title: "Distribution", expandSubsections: true }] },
+    ],
+  },
+  {
+    id: "estimation",
+    title: "Likelihood & Estimation",
+    collection: "inference",
+    parts: [
+      { format: "tex", raw: methods, selectors: [{ title: "Likelihood", rename: "Likelihood Basics" }] },
+      {
+        format: "tex",
+        raw: inference,
+        selectors: [
+          { title: "Chapter 1: Convergence properties", rename: "Large-Sample Properties" },
+          { title: "Chapter 2. MLE", rename: "Maximum Likelihood" },
+          { title: "Chapter3: Sufficient Statistics", rename: "Sufficient Statistics" },
+          { title: "Chapter4: Unbiased Estimation", rename: "Unbiased Estimation" },
+        ],
+      },
+    ],
+  },
+  {
+    id: "testing",
+    title: "Confidence Intervals & Tests",
+    collection: "inference",
+    parts: [{
+      format: "tex",
+      raw: methods,
+      selectors: [
+        { title: "Confidence Interval", rename: "Confidence Intervals" },
+        { title: "Test", occurrence: 1, rename: "Hypothesis Testing" },
+        { title: "Test", occurrence: 2, rename: "Nonparametric Tests" },
+      ],
+    }],
+  },
+  {
+    id: "regression-models",
+    title: "Regression Models",
     collection: "models",
-    format: "tex",
-    raw: other,
-    sectionFilter: "Distribution",
+    parts: [{
+      format: "tex",
+      raw: other,
+      selectors: [
+        { title: "Linear Regression: Important Concepts and Conclusions", group: "Linear Regression", expandSubsections: true },
+        { title: "Logistic Regression", group: "Logistic Regression", expandSubsections: true },
+        { title: "Kernel Regression", group: "Kernel Regression", expandSubsections: true },
+      ],
+    }],
+  },
+  {
+    id: "em-algorithm",
+    title: "EM Algorithm & Latent Data",
+    collection: "models",
+    parts: [{
+      format: "tex",
+      raw: other,
+      selectors: [{ title: "EM Algorithm for MLE with Missing Data", expandSubsections: true }],
+    }],
+  },
+  {
+    id: "causal-inference",
+    title: "Causal Inference: AIPW",
+    collection: "models",
+    parts: [{
+      format: "tex",
+      raw: other,
+      selectors: [{ title: "Augmented Inverse Probability Weighting (AIPW) / Doubly Robust Estimation", expandSubsections: true }],
+    }],
+  },
+  {
+    id: "categorical-study-design",
+    title: "Categorical Data & Study Design",
+    collection: "applied",
+    parts: [{
+      format: "tex",
+      raw: methods,
+      selectors: [
+        { title: "Association of 2*2 Table", rename: "Measures for 2×2 Tables" },
+        { title: "Stratification" },
+        { title: "Matching" },
+        { title: "Contingency Table", rename: "Contingency Tables" },
+        { title: "Person-time analysis", rename: "Person-Time Analysis" },
+      ],
+    }],
   },
   {
     id: "survival-analysis",
     title: "Survival Analysis",
-    shortTitle: "Survival analysis",
-    description: "Censoring, Kaplan–Meier, Cox models, risk prediction, and log-rank tests.",
-    collection: "prediction",
-    format: "markdown",
-    raw: survival,
-    featured: true,
+    collection: "applied",
+    parts: [
+      { format: "markdown", raw: survival },
+      { format: "tex", raw: methods, selectors: [{ title: "Survival", rename: "Core Formulas & Kaplan–Meier" }] },
+      {
+        format: "tex",
+        raw: probability,
+        selectors: [{
+          title: "Chapter 7: Failure Time, Survival Function and Hazard Function",
+          rename: "Cure Models",
+          includeItems: ["Cure models"],
+        }],
+      },
+    ],
   },
   {
     id: "conformal-prediction",
     title: "Conformal Prediction",
-    shortTitle: "Conformal prediction",
-    description: "Coverage, conditionality, weighted and online variants, risk, and multiplicity.",
-    collection: "prediction",
-    format: "markdown",
-    raw: conformal,
-    featured: true,
+    collection: "applied",
+    parts: [{ format: "markdown", raw: conformal }],
   },
-];
-
-export const quickRelations = [
-  ["Probability", "Inference", "Models", "Prediction"],
-  ["Exchangeability", "Conformal prediction"],
-  ["Likelihood", "MLE", "EM algorithm"],
-  ["Censoring", "Kaplan–Meier", "Cox model"],
 ];

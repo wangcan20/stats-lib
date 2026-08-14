@@ -8,8 +8,8 @@ export async function generateMetadata(): Promise<Metadata> {
   const host = requestHeaders.get("x-forwarded-host") ?? requestHeaders.get("host") ?? "localhost:3000";
   const protocol = requestHeaders.get("x-forwarded-proto") ?? (host.includes("localhost") ? "http" : "https");
   const origin = `${protocol}://${host}`;
-  const title = "Stat Atlas — a working statistics library";
-  const description = "A compact, connected library of probability, inference, statistical models, survival analysis, and conformal prediction.";
+  const title = "Stat Atlas — Statistics Library";
+  const description = "Statistics notes organized by foundations, inference, models, and applied topics.";
   return {
     title,
     description,
@@ -18,7 +18,7 @@ export async function generateMetadata(): Promise<Metadata> {
       title,
       description,
       type: "website",
-      images: [{ url: `${origin}/og.png`, width: 1200, height: 630, alt: "Stat Atlas — a working atlas of statistical ideas" }],
+      images: [{ url: `${origin}/og.png`, width: 1200, height: 630, alt: "Stat Atlas statistics library" }],
     },
     twitter: {
       card: "summary_large_image",

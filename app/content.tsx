@@ -1,37 +1,28 @@
 "use client";
 
 import katex from "katex";
-import type { TopicSource } from "./library-data";
+import type { Format, SectionSelector, TopicPart, TopicSource } from "./library-data";
 
 export type LibrarySection = {
   id: string;
   title: string;
   body: string;
-  depth?: number;
+  format: Format;
+  group?: string;
 };
 
-function uniqueSectionIds(sections: LibrarySection[]) {
-  const seen = new Map<string, number>();
-  return sections.map((section) => {
-    const count = (seen.get(section.id) ?? 0) + 1;
-    seen.set(section.id, count);
-    return count === 1 ? section : { ...section, id: `${section.id}-${count}` };
-  });
-}
-
-const corrections: Array<[RegExp, string]> = [
-  [/\\cup_\{k=1\}\^\\infty A_j/g, "\\cup_{k=1}^\\infty A_k"],
-  [/f\(x\)=\\lambda e\^\{-\\lambda\}(?=\$)/g, "f(x)=\\lambda e^{-\\lambda x}"],
-  [/Y=\\sum_\{i=1\}\^n\\psi_X\(t\)/g, "Y=\\sum_{i=1}^n X_i"],
-  [/x_2f_\{X_1\|X_2\}\(x_1\|x_2\)/g, "x_2f_{X_2|X_1}(x_2|x_1)"],
-  [/r\(x_1,x_2\)f_\{X_1\|X_2\}\(x_1\|x_2\)/g, "r(x_1,x_2)f_{X_2|X_1}(x_2|x_1)"],
-  [/S\(t\) = P\(T \\ge t\) = 1 - F\(t\)/g, "S(t) = P(T > t) = 1 - F(t)"],
-  [/S\(t\)=Pr\(T\\ge t\) or S\(t\)=1-F\(t\)=Pr\(T>t\)/g, "S(t)=P(T>t)=1-F(t) (and P(T\\ge t) for continuous T)"],
-];
-
-export function normalizeSource(raw: string) {
-  return corrections.reduce((value, [pattern, replacement]) => value.replace(pattern, replacement), raw);
-}
+const macros = {
+  "\\hl": "#1",
+  "\\E": "\\mathbb{E}",
+  "\\df": "\\xrightarrow{d}",
+  "\\Bar": "\\overline",
+  "\\Conditioned": "\\mid",
+  "\\where": "\\text{where}",
+  "\\Eg": "\\text{E.g.}",
+  "\\Specificity": "\\operatorname{Specificity}",
+  "\\Prove": "\\text{Prove}",
+  "\\If": "\\text{If}",
+};
 
 export function slugify(value: string) {
   return value
@@ -55,8 +46,7 @@ function stripBalancedCommand(input: string, command: string) {
       index += 1;
     }
     if (depth !== 0) break;
-    const inner = output.slice(start + needle.length, index - 1);
-    output = output.slice(0, start) + inner + output.slice(index);
+    output = output.slice(0, start) + output.slice(start + needle.length, index - 1) + output.slice(index);
     start = output.indexOf(needle);
   }
   return output;
@@ -82,61 +72,181 @@ export function plainText(raw: string) {
     .trim();
 }
 
-function texSections(rawInput: string, sectionFilter?: string): LibrarySection[] {
-  const raw = normalizeSource(rawInput).replace(/%.*$/gm, "");
-  const sectionPattern = /\\section\*?\{([^}]*)\}/g;
-  const matches = [...raw.matchAll(sectionPattern)];
-  const topSections = matches.map((match, index) => ({
-    title: plainText(match[1]),
-    body: raw.slice((match.index ?? 0) + match[0].length, matches[index + 1]?.index ?? raw.length),
-  }));
-  const selected = sectionFilter
-    ? topSections.filter((section) => section.title === plainText(sectionFilter))
-    : topSections;
-
-  if (!sectionFilter) {
-    return uniqueSectionIds(selected.map((section, index) => ({
-      id: slugify(section.title) || `section-${index + 1}`,
-      title: section.title.replace(/^Chapter\s*\d+\s*[:.]?\s*/i, ""),
-      body: section.body,
-    })));
-  }
-
-  const section = selected[0];
-  if (!section) return [];
-  const subPattern = /\\subsection\*?\{([^}]*)\}/g;
-  const subs = [...section.body.matchAll(subPattern)];
-  if (!subs.length) {
-    return [{ id: slugify(section.title), title: section.title, body: section.body }];
-  }
-  const intro = section.body.slice(0, subs[0].index).trim();
-  const parsed = subs.map((match, index) => ({
-    id: slugify(plainText(match[1])) || `section-${index + 1}`,
-    title: plainText(match[1]),
-    body: section.body.slice((match.index ?? 0) + match[0].length, subs[index + 1]?.index ?? section.body.length),
-  }));
-  if (intro) parsed.unshift({ id: "overview", title: "Overview", body: intro });
-  return uniqueSectionIds(parsed);
+function uniqueSectionIds(sections: LibrarySection[]) {
+  const seen = new Map<string, number>();
+  return sections.map((section) => {
+    const base = section.id || "section";
+    const count = (seen.get(base) ?? 0) + 1;
+    seen.set(base, count);
+    return count === 1 ? section : { ...section, id: `${base}-${count}` };
+  });
 }
 
-function markdownSections(rawInput: string): LibrarySection[] {
-  const raw = normalizeSource(rawInput).replace(/^---[\s\S]*?---\s*/, "");
-  const pattern = /^#\s+(.+)$/gm;
-  const matches = [...raw.matchAll(pattern)];
-  return uniqueSectionIds(matches.map((match, index) => ({
-    id: slugify(match[1]) || `section-${index + 1}`,
+type TexTopSection = { title: string; body: string };
+
+function texTopSections(rawInput: string): TexTopSection[] {
+  const raw = rawInput.replace(/%.*$/gm, "");
+  const matches = [...raw.matchAll(/\\section\*?\{([^}]*)\}/g)];
+  return matches.map((match, index) => ({
     title: plainText(match[1]),
     body: raw.slice((match.index ?? 0) + match[0].length, matches[index + 1]?.index ?? raw.length),
-  })));
+  }));
+}
+
+function itemLead(item: string) {
+  return plainText(item.replace(/^\\item(?:\[[^\]]*\])?/, "")).toLowerCase();
+}
+
+function filterItems(body: string, selector: SectionSelector) {
+  if (!selector.includeItems?.length && !selector.excludeItems?.length) return body;
+  const firstItem = body.search(/\\item(?:\[[^\]]*\])?/);
+  const prefix = firstItem >= 0 ? body.slice(0, firstItem) : "";
+  const itemBody = firstItem >= 0 ? body.slice(firstItem) : body;
+  const items = itemBody.split(/(?=\\item(?:\[[^\]]*\])?)/g).filter((item) => item.trim());
+  const includes = selector.includeItems?.map((item) => item.toLowerCase());
+  const excludes = selector.excludeItems?.map((item) => item.toLowerCase());
+  const kept = items.filter((item) => {
+    const lead = itemLead(item);
+    if (includes?.length && !includes.some((term) => lead.startsWith(term))) return false;
+    if (excludes?.some((term) => lead.startsWith(term))) return false;
+    return true;
+  });
+  return prefix + kept.join("\n");
+}
+
+function cleanChapterTitle(title: string) {
+  return title.replace(/^Chapter\s*\d+\s*[:.]?\s*/i, "");
+}
+
+function expandTexSection(top: TexTopSection, selector: SectionSelector): LibrarySection[] {
+  const body = filterItems(top.body, selector);
+  const title = selector.rename ?? cleanChapterTitle(top.title);
+  if (!selector.expandSubsections) {
+    return [{ id: slugify(`${selector.group ?? ""}-${title}`), title, body, format: "tex", group: selector.group }];
+  }
+
+  const matches = [...body.matchAll(/\\subsection\*?\{([^}]*)\}/g)];
+  if (!matches.length) {
+    return [{ id: slugify(`${selector.group ?? ""}-${title}`), title, body, format: "tex", group: selector.group }];
+  }
+  const group = selector.group ?? title;
+  const sections: LibrarySection[] = [];
+  const intro = body.slice(0, matches[0].index).trim();
+  if (plainText(intro)) sections.push({ id: slugify(`${group}-overview`), title: "Overview", body: intro, format: "tex", group });
+  matches.forEach((match, index) => {
+    const subsectionTitle = plainText(match[1]);
+    sections.push({
+      id: slugify(`${group}-${subsectionTitle}`),
+      title: subsectionTitle,
+      body: body.slice((match.index ?? 0) + match[0].length, matches[index + 1]?.index ?? body.length),
+      format: "tex",
+      group,
+    });
+  });
+  return sections;
+}
+
+function texPartSections(part: TopicPart): LibrarySection[] {
+  const top = texTopSections(part.raw);
+  if (!part.selectors) {
+    return top.map((section) => ({
+      id: slugify(cleanChapterTitle(section.title)),
+      title: cleanChapterTitle(section.title),
+      body: section.body,
+      format: "tex" as const,
+    }));
+  }
+
+  const titleCounts = new Map<string, number>();
+  const indexed = top.map((section) => {
+    const count = (titleCounts.get(section.title) ?? 0) + 1;
+    titleCounts.set(section.title, count);
+    return { ...section, occurrence: count };
+  });
+  return part.selectors.flatMap((selector) => {
+    const occurrence = selector.occurrence ?? 1;
+    const match = indexed.find((section) => section.title === plainText(selector.title) && section.occurrence === occurrence);
+    return match ? expandTexSection(match, selector) : [];
+  });
+}
+
+function markdownPartSections(part: TopicPart): LibrarySection[] {
+  const raw = part.raw.replace(/^---[\s\S]*?---\s*/, "");
+  const matches = [...raw.matchAll(/^#\s+(.+)$/gm)];
+  return matches.map((match, index) => {
+    const originalTitle = plainText(match[1]);
+    const isReference = originalTitle.startsWith("Reference:");
+    return {
+      id: slugify(isReference ? "reference" : originalTitle),
+      title: isReference ? "Reference" : originalTitle,
+      body: `${isReference ? originalTitle.replace(/^Reference:\s*/, "") : ""}\n${raw.slice((match.index ?? 0) + match[0].length, matches[index + 1]?.index ?? raw.length)}`.trim(),
+      format: "markdown" as const,
+    };
+  });
 }
 
 export function parseTopic(topic: TopicSource) {
-  return topic.format === "markdown"
-    ? markdownSections(topic.raw)
-    : texSections(topic.raw, topic.sectionFilter);
+  return uniqueSectionIds(topic.parts.flatMap((part) => part.format === "markdown" ? markdownPartSections(part) : texPartSections(part)));
 }
 
-const mathPattern = /(\$\$[\s\S]*?\$\$|(?<!\\)\\\[[\s\S]*?\\\]|(?<!\\)\\\([\s\S]*?\\\)|(?<!\\)\$(?:\\.|[^$\n])*?\$)/g;
+type RichToken = { type: "text" | "math"; value: string; display?: boolean };
+
+function escapedAt(input: string, index: number) {
+  let slashes = 0;
+  for (let cursor = index - 1; cursor >= 0 && input[cursor] === "\\"; cursor -= 1) slashes += 1;
+  return slashes % 2 === 1;
+}
+
+function findClosing(input: string, marker: string, start: number) {
+  let index = input.indexOf(marker, start);
+  while (index >= 0 && escapedAt(input, index)) index = input.indexOf(marker, index + marker.length);
+  return index;
+}
+
+export function tokenizeRichText(input: string): RichToken[] {
+  const tokens: RichToken[] = [];
+  let textStart = 0;
+  let cursor = 0;
+  const pushText = (end: number) => {
+    if (end > textStart) tokens.push({ type: "text", value: input.slice(textStart, end) });
+  };
+
+  while (cursor < input.length) {
+    let open = "";
+    let close = "";
+    let display = false;
+    if (input.startsWith("$$", cursor) && !escapedAt(input, cursor)) {
+      open = close = "$$";
+      display = true;
+    } else if (input.startsWith("\\[", cursor) && !escapedAt(input, cursor)) {
+      open = "\\[";
+      close = "\\]";
+      display = true;
+    } else if (input.startsWith("\\(", cursor) && !escapedAt(input, cursor)) {
+      open = "\\(";
+      close = "\\)";
+    } else if (input[cursor] === "$" && !escapedAt(input, cursor)) {
+      open = close = "$";
+    }
+
+    if (!open) {
+      cursor += 1;
+      continue;
+    }
+    const closing = findClosing(input, close, cursor + open.length);
+    if (closing < 0) {
+      cursor += open.length;
+      continue;
+    }
+    pushText(cursor);
+    const value = input.slice(cursor + open.length, closing);
+    tokens.push({ type: "math", value, display: display || value.includes("\n") });
+    cursor = closing + close.length;
+    textStart = cursor;
+  }
+  pushText(input.length);
+  return tokens;
+}
 
 function cleanTextSegment(input: string) {
   let value = input;
@@ -161,53 +271,40 @@ function cleanTextSegment(input: string) {
     .trim();
 }
 
-export function RichText({ raw, display = false }: { raw: string; display?: boolean }) {
-  const parts = raw.split(mathPattern).filter(Boolean);
+function sanitizeFormula(formula: string) {
+  if (!formula.includes("\\begin{tabular}")) return formula;
+  return formula
+    .replace(/\\renewcommand\{\\arraystretch\}\{[^}]*\}/g, "")
+    .replace(/\\setlength\{\\tabcolsep\}\{[^}]*\}/g, "")
+    .replace(/\\text\{\\small\s*/g, "")
+    .replace(/\\begin\{tabular\}/g, "\\begin{array}")
+    .replace(/\\end\{tabular\}\s*\}/g, "\\end{array}")
+    .replace(/\$/g, "");
+}
+
+export function renderFormulaHtml(formula: string, displayMode: boolean) {
+  return katex.renderToString(sanitizeFormula(formula), {
+    displayMode,
+    throwOnError: false,
+    strict: false,
+    trust: false,
+    macros,
+  });
+}
+
+export function RichText({ raw }: { raw: string }) {
+  const tokens = tokenizeRichText(raw);
   return (
-    <span className={display ? "rich-text display-rich" : "rich-text"}>
-      {parts.map((part, index) => {
-        const isMath =
-          (part.startsWith("$$") && part.endsWith("$$")) ||
-          (part.startsWith("\\[") && part.endsWith("\\]")) ||
-          (part.startsWith("\\(") && part.endsWith("\\)")) ||
-          (part.startsWith("$") && part.endsWith("$"));
-        if (isMath) {
-          const isDisplay = part.startsWith("$$") || part.startsWith("\\[");
-          let formula = part.replace(/^\$\$|\$\$$/g, "").replace(/^\\\[|\\\]$/g, "").replace(/^\\\(|\\\)$/g, "");
-          if (formula.includes("\\begin{tabular}")) {
-            formula = formula
-              .replace(/\\renewcommand\{\\arraystretch\}\{[^}]*\}/g, "")
-              .replace(/\\setlength\{\\tabcolsep\}\{[^}]*\}/g, "")
-              .replace(/\\text\{\\small\s*/g, "")
-              .replace(/\\begin\{tabular\}/g, "\\begin{array}")
-              .replace(/\\end\{tabular\}\s*\}/g, "\\end{array}")
-              .replace(/\$/g, "");
-          }
-          const html = katex.renderToString(formula, {
-            displayMode: isDisplay,
-            throwOnError: false,
-            strict: false,
-            trust: false,
-            macros: {
-              "\\E": "\\mathbb{E}",
-              "\\df": "\\xrightarrow{d}",
-              "\\Bar": "\\overline",
-              "\\Conditioned": "\\mid",
-              "\\where": "\\text{where}",
-              "\\Eg": "\\text{E.g.}",
-              "\\Specificity": "\\operatorname{Specificity}",
-              "\\Prove": "\\text{Prove}",
-              "\\If": "\\text{If}",
-            },
-          });
-          return <span key={index} className={isDisplay ? "math-display" : "math-inline"} dangerouslySetInnerHTML={{ __html: html }} />;
+    <span className="rich-text">
+      {tokens.map((token, index) => {
+        if (token.type === "math") {
+          const html = renderFormulaHtml(token.value, Boolean(token.display));
+          return <span key={index} className={token.display ? "math-display" : "math-inline"} dangerouslySetInnerHTML={{ __html: html }} />;
         }
-        const cleaned = cleanTextSegment(part);
-        return cleaned.split("\n").map((line, lineIndex) => (
-          <span key={`${index}-${lineIndex}`}>
-            {line}
-            {lineIndex < cleaned.split("\n").length - 1 ? <br /> : null}
-          </span>
+        const cleaned = cleanTextSegment(token.value);
+        const lines = cleaned.split("\n");
+        return lines.map((line, lineIndex) => (
+          <span key={`${index}-${lineIndex}`}>{line}{lineIndex < lines.length - 1 ? <br /> : null}</span>
         ));
       })}
     </span>
@@ -224,28 +321,17 @@ function extractItemLabel(item: string) {
 export function TexBody({ body }: { body: string }) {
   const prepared = body
     .replace(/\\begin\{document\}|\\end\{document\}|\\begin\{multicols\}\{\d+\}|\\end\{multicols\}/g, "")
-    .replace(/\\begin\{itemize\}/g, "")
-    .replace(/\\end\{itemize\}/g, "")
+    .replace(/\\begin\{itemize\}|\\end\{itemize\}/g, "")
     .replace(/\\paragraph\*?\{([^}]*)\}/g, "\\item \\textbf{$1}")
     .trim();
   const parts = prepared.split(/\\item(?:\[[^\]]*\])?/g).map((part) => part.trim()).filter(Boolean);
-
-  if (parts.length <= 1) {
-    return <div className="prose-block"><RichText raw={prepared} display /></div>;
-  }
+  if (parts.length <= 1) return <div className="prose-block"><RichText raw={prepared} /></div>;
   return (
     <ul className="note-list">
       {parts.map((part, index) => {
         const label = extractItemLabel(part);
-        const itemBody = label
-          ? part.replace(/^\s*(?:\\hl\{)?\\textbf\{[^}]*\}\}?\s*/, "")
-          : part;
-        return (
-          <li key={index} className={label ? "has-label" : undefined}>
-            {label ? <span className="item-label">{label}</span> : null}
-            <RichText raw={itemBody} display />
-          </li>
-        );
+        const itemBody = label ? part.replace(/^\s*(?:\\hl\{)?\\textbf\{[^}]*\}\}?\s*/, "") : part;
+        return <li key={index}>{label ? <strong className="item-label">{label}</strong> : null}<RichText raw={itemBody} /></li>;
       })}
     </ul>
   );
@@ -257,40 +343,41 @@ export function MarkdownBody({ body }: { body: string }) {
   const lines = body.split("\n");
   const blocks: React.ReactNode[] = [];
   let list: MdNode[] = [];
+  let paragraph: string[] = [];
+  const flushParagraph = () => {
+    if (!paragraph.length) return;
+    blocks.push(<p key={`p-${blocks.length}`}><RichText raw={paragraph.join("\n")} /></p>);
+    paragraph = [];
+  };
   const flushList = () => {
     if (!list.length) return;
     const current = list;
     list = [];
-    blocks.push(
-      <ul className="mind-list" key={`list-${blocks.length}`}>
-        {current.map((node, index) => (
-          <li key={index} style={{ "--indent": Math.min(node.indent, 4) } as React.CSSProperties}>
-            <span className="mind-rail" aria-hidden="true" />
-            <RichText raw={node.text} />
-          </li>
-        ))}
-      </ul>,
-    );
+    blocks.push(<ul className="mind-list" key={`list-${blocks.length}`}>{current.map((node, index) => (
+      <li key={index} className={`depth-${Math.min(node.indent, 4)}`}><RichText raw={node.text} /></li>
+    ))}</ul>);
   };
 
   lines.forEach((line) => {
     const heading = line.match(/^(#{2,4})\s+(.+)/);
-    const bullet = line.match(/^(\s*)-\s+(.*)/);
+    const bullet = line.match(/^(\s*)-\s*(.*)/);
     if (heading) {
+      flushParagraph();
       flushList();
-      const level = heading[1].length;
-      blocks.push(
-        <h3 className={`md-heading level-${level}`} key={`heading-${blocks.length}`}>
-          {heading[2]}
-        </h3>,
-      );
+      blocks.push(<h3 className={`md-heading level-${heading[1].length}`} key={`h-${blocks.length}`}>{heading[2]}</h3>);
     } else if (bullet) {
+      flushParagraph();
       list.push({ text: bullet[2], indent: Math.floor(bullet[1].length / 2) });
+    } else if (list.length && line.trim()) {
+      list[list.length - 1].text += `\n${line.trim()}`;
     } else if (line.trim()) {
       flushList();
-      blocks.push(<p key={`p-${blocks.length}`}><RichText raw={line} /></p>);
+      paragraph.push(line);
+    } else if (paragraph.length) {
+      flushParagraph();
     }
   });
+  flushParagraph();
   flushList();
   return <div className="markdown-body">{blocks}</div>;
 }

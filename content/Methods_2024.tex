@@ -412,8 +412,7 @@
     \frac{\binom{n_1}{a} \binom{N - n_1}{m_1 - a} \psi^a}
     {\sum_u \binom{n_1}{u} \binom{N - n_1}{m_1 - u} \psi^u}.
     $\\
-    $
-    L(\psi; a)$ is a conditional likelihood which is maximized to get $ \hat{\psi}, \text{ the CMLE}$.
+    $L(\psi; a)$ is a conditional likelihood which is maximized to get $ \hat{\psi}$, the CMLE.
     
     $
     \hat{\psi} \neq \frac{ad}{bc}$ 
@@ -427,6 +426,7 @@
     
     $
     \frac{\alpha}{2} = \sum_{t \leq a} P(t; m_1, n_1, n_2, \psi_U)
+    $
     Fisher.test() in R
  
 \end{itemize}
@@ -510,8 +510,8 @@
     Marginal odds ratio = $\frac{\pi_{1+}  \pi_{+2}}{\pi_{+1}  \pi_{2+}}$\\
     MLE of marginal log odds ratio: $\hat{\theta} = \log\left\{\frac{\hat{\pi}_{1+} \hat{\pi}_{+2}}{\hat{\pi}_{+1} \hat{\pi}_{2+}}\right\}$\\
     Asymptotic variance of it:\\ $
-    \{ (\pi_{1+} \pi_{2+})^{-1} + (\pi_{+1} \pi_{+2})^{-1} $\\
-    $- 2 \frac{(\pi_{11} \pi_{22} - \pi_{12} \pi_{21})}{(\pi_{1+} \pi_{2+} \pi_{+1} \pi_{+2})} \} / n
+    \{ (\pi_{1+} \pi_{2+})^{-1} + (\pi_{+1} \pi_{+2})^{-1} \\
+    - 2 \frac{(\pi_{11} \pi_{22} - \pi_{12} \pi_{21})}{(\pi_{1+} \pi_{2+} \pi_{+1} \pi_{+2})} \} / n
     $  
 \end{itemize}
 
@@ -566,9 +566,9 @@
     Large sample: $\frac{(2S - n)^2}{n} \sim \chi^2_1$ or $\frac{(|2S - n| - 1)^2}{n} \sim \chi^2_1$ 
     \item Wilcoxon's Signed Rank Test\\
     $W_+$: the rank sum for $d_i>0$\\
-    $E(W_+) = \frac{n(n+1)}{4} \\
-    Var(W_+) = \frac{n(n+1)(2n+1)}{24} \\
-    TS = \{ W_+ - E(W_+) \} / Sd(W_+) \to \text{Normal}(0, 1)$
+    $E(W_+) = \frac{n(n+1)}{4}$ \\
+    $Var(W_+) = \frac{n(n+1)(2n+1)}{24}$ \\
+    $TS = \{ W_+ - E(W_+) \} / Sd(W_+) \to \text{Normal}(0, 1)$
     \item Wilcoxon-Mann-Whitney test\\
     $W$: sum of the ranks for treatment $B$.\\
     $E(W) = \frac{n_B (n_A + n_B + 1)}{2}$,

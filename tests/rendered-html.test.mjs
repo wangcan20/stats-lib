@@ -24,11 +24,15 @@ test("renders the finished Stat Atlas shell and social metadata", async () => {
   assert.equal(response.status, 200);
   assert.match(response.headers.get("content-type") ?? "", /^text\/html\b/i);
   const html = await response.text();
-  assert.match(html, /<title>Stat Atlas — a working statistics library<\/title>/i);
+  assert.match(html, /<title>Stat Atlas — Statistics Library<\/title>/i);
+  assert.match(html, />Statistics Library</i);
+  assert.match(html, />Common Distributions</i);
+  assert.match(html, />Regression Models</i);
   assert.match(html, /property="og:image"/i);
   assert.match(html, /https:\/\/stat-atlas\.test\/og\.png/i);
   assert.match(html, /name="twitter:card" content="summary_large_image"/i);
   assert.doesNotMatch(html, /codex-preview|SkeletonPreview|Your site is taking shape|Starter Project/i);
+  assert.doesNotMatch(html, /topic-card|evolving library|mindmap source|living notes/i);
   await access(new URL("../public/og.png", import.meta.url));
 });
 
@@ -51,8 +55,12 @@ test("keeps every canonical note synchronized with the deployable content layer"
   }
 
   const data = await readFile(new URL("../app/library-data.ts", import.meta.url), "utf8");
-  assert.equal((data.match(/\bid:\s*"[^"]+"/g) ?? []).length >= 17, true);
+  assert.equal((data.match(/\bid:\s*"[^"]+"/g) ?? []).length >= 12, true);
   assert.match(data, /id:\s*"conformal-prediction"/);
   assert.match(data, /id:\s*"survival-analysis"/);
-  assert.match(data, /sectionFilter:\s*"Augmented Inverse Probability Weighting/);
+  assert.match(data, /id:\s*"distributions"/);
+  assert.match(data, /title:\s*"Linear Algebra"/);
+  assert.match(data, /title:\s*"Linear Regression: Important Concepts and Conclusions"/);
+  assert.match(data, /title:\s*"Logistic Regression"/);
+  assert.match(data, /title:\s*"Kernel Regression"/);
 });
