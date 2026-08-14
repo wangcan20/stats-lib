@@ -1,0 +1,633 @@
+\documentclass[a4paper,10pt]{article}
+
+% 载入multicol包用于创建多列布局
+\usepackage{multicol}
+% 载入amsmath包用于数学公式
+\usepackage{amsmath}
+% 设置页边距
+\usepackage[margin=0.5in]{geometry}
+% 载入graphicx包用于插入图片
+\usepackage{graphicx}
+% 设置字体大小
+\usepackage{times}
+\usepackage{booktabs}
+\usepackage{soul}
+\usepackage{array}
+\usepackage{xcolor}  % 导入 xcolor 宏包（用于设置颜色）
+\sethlcolor{yellow}  % 设置高亮颜色为黄色
+\renewcommand{\baselinestretch}{0.9} % 行距
+
+% 开始文档
+\begin{document}
+
+% 开启两列布局，调整全局字体大小为小一点
+\begin{multicols}{3}
+\small
+
+% 第一列开始
+
+% 调整section标题字号
+\section*{Set and Probability}
+
+\begin{itemize}
+    \item Sample space $\Omega$, Event $E$
+    \item
+    $(A\cap B)^c=A^c\cup B^c$\\
+    $(A\cup B)^c=A^c\cap B^c$\\
+    $(A^c)^c=A$\\
+    $(A\cup B)\cap C=(A\cap C)\cup (B\cap C)$\\
+    $A=B$ iff $A\subset B$ and $B \subset A$
+    
+    \item Probability measure (Kolmogorov's axioms):\\
+    1. For an event $E\subset \Omega$, $0\le P(E)\le 1$ \\
+    2. $P(\Omega) =1$\\
+    3. If $E_i$ are mutually exclusive events, $P(\cup_{i=1}^\infty E_i)=\sum_{i=1}^\infty P(E_i)$(countable additivity, implies finite additivity)
+    \item Results:\\ $P(\phi) =0$ (by axiom 3)\\ 
+    $P(E)=1-P(E^c)$\\
+    $P(A\cup B)=P(A)+P(B)-P(A\cap B)$ \\
+    if $A\subset B$ then $P(A)\le P(B)$\\
+    $P(A\cup B)=1-P(A^c\cap B^c)$\\
+    $P(A\cap B^c)=P(A)-P(A\cap B)$\\
+    $P(\cup_{i=1}^n E_i)\le \sum_{i=1}^nP(E_i)$ (sub-additivity) (prove by induction)\\
+    $P(\cup_{i=1}^n E_i)\ge max_i P(E_i)$
+\end{itemize}
+
+\section*{Random variables/vectors}
+
+\begin{itemize}
+    \item PMF: discrete variables. \\
+    1.$p(x)\ge 0$ for all x\\
+    2.$\sum_xp(x)=1$
+    \item PDF: $P(X \in I)=\int_I f(x)dx$\\
+    1. $f(x)\ge 0$ for all $x$. \\2. $\int_{-\infty}^\infty f(x)\,dx=1$
+    \item CDF:$F(x)=P(X\le x)$,
+    $f(x)=F'(x)$
+    \item Survival Function: $S(x)=P(X>x)$,
+    $S(x)=1-F(x)$
+    \item Hazard Function: $h(x)=p(x\le X\le x+\Delta x|X>x)/\Delta x=f(x)/S(x)$,\\
+    $S(x)=exp[-\int_0^xh(u)du]$\\
+    (Exponential has a constant hazard.)
+    \item The $\alpha^{th}$ quantile: $F(x_\alpha)=\alpha$
+    \item QQ plot: x-Theoretical quantiles y-Empirical quantiles
+    \item Joint density:\\ 1. $f(x,y)\ge 0$ for every x and y. \\2. $\iint f(x,y)dxdy=1$\\ or $\sum_x \sum_y P(X=x,Y=y)=1$.\\
+    3. $f(y)=\int f(x,y)dx$\\ or $f(y)=\sum_x f(x,y)$.\\
+    4. $f(x|y)=f(x,y)/f(y)$\\
+    5. Independent variables: $f(x,y)=f(x)g(y)$\\
+    6. $f(y|x)=\frac{f(x|y)f(y)}{\int f(x|u)f(u)du}$\\
+    or $f(y|x)=\frac{f(x|y)f(y)}{\sum_u f(x|u)f(u)}$\\
+    7. $F_{X,Y}(x,y)=P(X\le x,Y\le y)=\int_{-\infty}^x \int_{-\infty}^yf(x,y)dxdy$
+    \item Functions of RV: If $Y=g(X)$, $F_Y(y)=F_X(g^{-1}(y)),f_Y(y)=f_X(g^{-1}(y))|\frac{dg^{-1}(y))}{dy}|$
+\end{itemize}
+
+\section*{Expectation}
+\begin{itemize}
+    \item Discrete: $E(X)=\sum_xxp(x)$\\
+    $E[g(x)]=\sum_xg(x)p(x)$
+    \item Continuous: $E[X]=\int_{-\infty}^\infty xf(x)dx$
+    \item Linear: $E(aX+bY+c)=aE(X)+bE(Y)+c$\\
+    (Can prove: Sample mean is unbiased.)
+    \item Nonlinear: $E[X]^2\le E[X^2]$ \\Prove: $(\sum_i a_ib_i)^2\le(\sum_ia_i^2)(\sum_ib_i^2)$
+    \item Jensen's inequality: If h() is a convex function (ie. $f''(x)>0$ for all x), $E[h(X)]\ge h(E[X])$
+    \item If $X\perp Y$, $E[XY]=E[X]E[Y]$, $g(X)\perp h(Y)$
+    
+\end{itemize}
+
+\section*{Variance \& Covariance}
+\begin{itemize}
+    \item $Var(X)=E[(X-\mu)^2]=E[X^2]-E[X]^2$, $SD(X)=\sqrt{Var(X)}$
+    \item $Var(aX)=a^2Var(X)$
+    \item $Var(\sum_{i=1}^n a_i X_i+b)=\sum_{i=1}^na_i^2Var(X_i) + 2\sum_{i<j}a_ia_j$ $Cov(X_i,X_j)$
+    \item If $X_i$ uncorrelated, $Var(\sum_{i=1}^n a_i X_i+b)=\sum_{i=1}^na_i^2Var(X_i)$\\
+    Result: If $X_i$ iid, $Var(\Bar{X}_n)=\frac{\sigma^2}{n}$
+    \item Chebyshev's inequality: $P(|X-\mu|\ge k\sigma)\le \frac{1}{k^2}$. Loose bound about the tail. 
+    $2\sigma:25\%, 3\sigma:11\%$
+    \item $Cov(X,Y)=E{(X-E[X])(Y-E[Y])}$\\ $=E[XY]-E[X]E[Y]$
+    \item If $X \perp Y$, $Cov(X,Y)=0$
+    \item $Cor(X,Y)=\frac{Cov(X,Y)}{\sqrt{Var(X)Var(Y)}}$
+    \item $-1\le Corr(X,Y)\le 1$. $Corr(X,Y)=\pm 1$ iff $X=a+bY$ almost surely
+    \item X and Y are uncorrelated if $Cor(X,Y)=0$. Zero covariance doesn't imply independence. (Note: if X and Y are normal, zero covariance implies independence.)
+    \item $\sigma(AX)=A\Sigma A^T$
+    
+\end{itemize}
+\section*{Distribution Examples}
+\begin{itemize}
+    \item Bernoulli: $p(x)=\theta^x(1-\theta)^{1-x}$\\
+    $E(X)=\theta$, $Var(X)=\theta (1-\theta)$
+    \item Binomial(n,p): $p(X=x)=\binom{n}{x}p^x(1-p)^{n-x}$,$E(X)=np$, $Var(X)=np(1-p)$\\
+    \item Multinomial(n,p):\\ $f(x)=\frac{n!}{x_1! \cdots x_k!} p_1^{x_1} \cdots p_k^{x_k}$, $E(X_i) = n p_i$, $\text{Var}(X_i) = n p_i (1 - p_i)$, $\text{Cov}(X_i, X_j) = -n p_i p_j \quad (i \neq j)$
+    \item Hypergeometric:\\ $P(X=x;N,n,k)=\frac{\binom{n}{x}\binom{N-n}{k-x}}{\binom{N}{k}}$\\
+    (n and k can interchange)\\
+    $E(X)=k\frac{n}{N}$,\\ $Var(X)=k\frac{n}{N}\frac{N-n}{N}\frac{N-k}{N-1}$
+    \item Poisson: $p(X=k)=\frac{\lambda^ke^{-\lambda}}{k!}$, for k=0,1,...
+    \\$\lambda$: average number of patients\\
+    $E[X]=\lambda$ (Prove: $\sum p_{(X-1)}=1$), $Var(X)=\lambda$ (Prove: $E[X(X-1)])$.\\
+    When n large, p small: $Bin(n,p)\rightarrow Poisson(\lambda)$, where $\lambda=np$\\
+    $\sum iid\ Poisson(\lambda)\sim Poisson(n\lambda)$
+    \item Geometric: $P(X=x)=(1-p)^{x-1}p$, for k=1,2,... $F(x)=1-(1-p)^x$, $E[X]=\frac{1}{p}$ (prove: $\frac{1}{1-q}=\sum_i q^i)$, $Var(X)=\frac{1-p}{p^2}$
+    \item Negative Binomial(n,p): $P(X=x)=\binom{n+x-1}{x}p^n(1-p)^x$,$E(X)=\frac{n(1-p)}{p}$,$Var(X)=\frac{n(1-p)}{p^2}$
+    \item Uniform: $X\sim U(a,b)$, $E(X)=\frac{a+b}{2}$, $Var(X)=\frac{1}{12}(b-a)^2$
+    \item Exponential: $f(x)=\lambda e^{-\lambda x},x>0$.\\ $F(x)=1-e^{-\lambda x}$,
+    $E[X]=\frac{1}{\lambda}$, $Var(X)=\frac{1}{\lambda^2}$
+    \item Normal: $f(x)=\frac{1}{\sqrt{2\pi\sigma^2}}e^{-\frac{(x-\mu)^2}{2\sigma^2}}$, $E[X]=\mu$, $Var(X)=\sigma^2$\\
+    $Z=\frac{X-\mu}{\sigma}\sim N(0,1)$
+    \item Gamma: $f(x)=\frac{\beta^\alpha}{ \Gamma(\alpha)}x^{\alpha-1}e^{-\beta x}$, $x>0$. (shape-rate)\\ $\Gamma(\alpha)=\int_0^\infty x^{\alpha-1}e^{-x}dx$.\\
+    $E(X)=\alpha/\beta$, $Var(X)=\alpha/{\beta^2}$\\
+    $E[1/X]=\frac{\beta}{\alpha-1}$\\
+    $X\sim Gamma(\alpha, \beta),cX\sim(\alpha,\beta/c)$.\\
+    $\sum Gamma\sim(\sum \alpha,\beta)$.
+    \item Chi-squared: If $X_i$ are iid $N(0,1)$ RVs, $\sum_{i=1}^nX_i^2\sim \chi_n^2$. $\chi_n^2\sim Gamma(n/2,1/2)$\\
+    If $X_i$ iid Normal, $\frac{(n-1)S^2}{\sigma^2}\sim \chi_{n-1}^2$
+    \item Student's t: $t_n=\frac{Z}{\sqrt{\frac{\chi^2_n}{n}}}$, $Z\perp \chi^2$. $E=0$,$Var=n/(n-2)$. $t_1$ is Cauchy.\\
+    If $N(\mu,\sigma^2)$, non-central t with non-centrality parameter $\mu/\sigma$
+    \item F: $F(m,n)\sim \frac{\chi^2_m/m}{\chi^2_n/n}$
+    \item Standard Cauchy:\\ $f(x)=\frac{1}{\pi (1+x^2)},-\infty<x<\infty$. 
+    \item Weibull: $f(x)=\frac{k}{\lambda}(\frac{x}{\lambda})^{k-1}e^{-(x/\lambda)^k},x\ge 0$. $F(x)=1-e^{-(x/\lambda)^k},x\ge 0$. $E[X]=\lambda \Gamma (1+1/k)$
+\end{itemize}
+
+
+\section*{Independence}
+\begin{itemize}
+    \item Events A and B are independent if $P(A\cap B)=P(A)P(B)$
+    \item RV X and Y are independent if for any A and B, $P([X\in A]\cap[Y \in B])=P(X\in A)P(Y\in B)$
+    \item If $A\perp B$ then $A^c \perp B$, $A \perp B^c$, $A^c \perp B^c$
+    \item Joint distribution: If $X_i$ are independent, $f(x_1,...,x_n)=\prod_{i=1}^nf_i(x_i)$. Further, if $f_1=...=f_n$, $X_i$ are iid distributed.
+    \item If $X_i$ are iid with variance $\sigma^2$, $Var(\Bar{X}_n)=\frac{\sigma^2}{n}$
+    
+\end{itemize}
+
+\section*{Condition}
+\begin{itemize}
+    \item $P(A|B)=\frac{P(A\cap B)}{P(B)}$. \\If $A\perp B,P(B|A)=P(B)$
+    \item $P(\cap_{i=1}^kE_i)=P(E_i)\times P(E_2|E_1)...\times P(E_k|\cap_{i=1}^{k-1}E_i)$
+    \item $f(x|y_0)=f(x,y_0)/f(y_0)$
+    \item Bayes' Rule:\\ $P(B|A)=\frac{P(A|B)P(B)}{P(A|B)P(B)+P(A|B^c)P(B^c)}$\\
+    \item Law of total probability: If $E_i$ is a partition of $\Omega$, \\$P(E)=\sum_{i=1}^\infty P(E|E_i)P(E_i)$\\
+    $P(E_i|E)=\frac{P(E|E_i)P(E_i)}{\sum_{j=1}^\infty P(E|E_j)P(E_j)}$
+    \item Diagnostic tests\\
+    Sensitivity: $P(+|D)$ \\Specificity: $P(-|D^c)$\\
+    Positive predictive value: $P(D|+)$\\
+    Negative predicive value: $P(D^c|-)$\\
+    Prevalence: $P(D)$
+    \item Diagnostic likelihood ratio: $DLR_+=\frac{P(+|D)}{P(+|D^c)}$, $\frac{P(D|+)}{P(D^c|+)}=DLR_+ \times \frac{P(D)}{P(D^c)}$ (ie. post-test odds of D $=DLR_+\times $pre-test odds of D). Similar with $DLR_-$.
+\end{itemize}
+
+\section*{Likelihood}
+\begin{itemize}
+    \item likelihood: $L(\theta|x)\propto f(x,\theta)$.
+    \item If $X_i$ iid, $L(\theta|X)\propto\prod_{i=1}^nf(x_i,\theta)$,
+    $log{L(\theta|x)}=\sum_{i=1}^nlog{f(x_i,\theta)}$
+    \item MLE: $\hat{\theta}_{ML}=argmax_\theta logL(\theta|x)$\\
+    $X_i \sim N(\mu,\sigma^2)$: $\hat{\mu}=\bar{x}$ is unbiased, $g(\bar{x})$ is the MLE of $g(\mu)$. $\hat{\sigma^2}=\frac{\sum_{i=1}^n(X_i-\bar{X})^2}{n}$ is biased.
+    \item 
+    Likelihood Ratio: $\frac{L(p_0|x)}{L(p_1|x)}$\\
+    LRT: $\Lambda(x)=\frac{f_X(x;\theta_0)}{f_X(x;\hat{\theta})}$\\
+    Bayes Factor: Posterior odds = prior odds * BF.\\
+    $\frac{P(H_1|D)}{P(H_2|D)}=\frac{P(H_1)}{P(H_2)}\frac{P(D|H_1)}{P(D|H_2)}$
+\end{itemize}
+
+\section*{Confidence Interval}
+\begin{itemize}
+    \item LLN:\\
+    Converge in probability: $\lim_{n\to \infty} P$ $(|\bar{X_n}-a|<\epsilon)=1$\\
+    WLLN: $\lim_{n\to \infty} P(|\bar{X_n}-\mu|<\epsilon)=1$\\
+    SLLN: $P(\{\omega \in \Omega: \lim_{n\to \infty} $$\bar{X_n}(\omega)=\mu\})=1$\\
+    \hl{$\frac{1}{n}\sum_{i=1}^nf(X_i)\to E[f(X)]$}\\
+    Sample mean and sample variance are unbiased and consistent estimators. 
+    \item CLT:\\
+    Convergent in distribution: $P(X_n\le x)=F_n(x)\to F(x)=P(X\le x)$\\
+    CLT: $X_i\ iid, Z_n=\frac{\bar{X}_n-\mu}{\sigma/\sqrt{n}}$ converges in distribution to $Z\sim N(0,1)$.
+    \item Slutsky's theorem:\\
+    If $X_n$ converges in distribution to $X$, $Y_n$ converges in probability to c, then:\\
+    1. $X_n+Y_n\to X+c$\\
+    2. $X_nY_n\to Xc$\\
+    3. $X_nY_n\to Xc^{-1}$
+    \item CI of $\mu$ for known $\sigma$:\\ $\bar{X}_n\pm z_{1-\alpha/2}\sigma /\sqrt{n}$\\
+    Wald confidence interval for binary events: $\hat{p}\pm z_{1-\alpha/2}\sqrt{\frac{p(1-p)}{n}}$
+    \item CI of $\mu$ for unknown $\sigma$ (normal):\\ $\bar{X}_n\pm t_{n-1,1-\alpha/2}S /\sqrt{n}$ \\
+    For large n ($n>50$), we can use z instead of $t_{n-1}$.
+    \item CI of Normal $\sigma^2$: $[\frac{(n-1)S^2}{\chi^2_{n-1,1-\alpha/2}},\frac{(n-1)S^2}{\chi^2_{n-1,\alpha/2}}]$
+    \item One-sided Confidence interval\\
+    (one sample t), $H_a:\mu<\mu_0$\\
+    One-sided CI: $(-\infty,\bar{X}-t_{\alpha,n-1}s/\sqrt{n})$
+\end{itemize}
+
+\section*{Test}
+\begin{itemize}
+    \item \hl{Independent two sample t:}\\
+    Assumption: Normal, equal variance.\\
+    $t=\frac{\bar{Y}-\bar{X}-(\mu_y-\mu_x)}{S_p(\frac{1}{n_x}+\frac{1}{n_y})^\frac{1}{2}}\sim t(n_x+n_y-2)$
+    $S_p^2=\frac{(n_x-1)S_x^2+(n_y-1)S_y^2}{n_x+n_y-2}$ unbiased\\
+    CI for $\mu_y-\mu_x$: $\bar{Y}-\bar{X}\pm t_{n_x+n_y-2,1-\alpha/2}S_p(\frac{1}{n_x}+\frac{1}{n_y})^\frac{1}{2}$.\\
+    p value: $P=Prob(|T|>T_{obs})$
+    \item \hl{Bartlett's Test (equal variance)}:\\
+    $\frac{S^2_x/\sigma^2_x}{S^2_y/\sigma^2_y}\sim F_{n_x-1,n_y-1}$\\
+    CI for $\frac{\sigma^2_y}{\sigma^2_x}$: $(F_{n_x-1,n_y-1,\alpha/2}\frac{S^2_y}{S^2_x},$ $F_{n_x-1,n_y-1,1-\alpha/2}\frac{S^2_y}{S^2_x})$\\
+    Remark: Bartlett's test is highly sensitive to deviations from normality (greater than two-sample t test). Two step strategy is not encouraged.
+    \item \hl{Independent two sample t (Welch)}:\\
+    Assumption: Normal, unequal variance.\\
+    $t=\frac{\bar{Y}-\bar{X}-(\mu_y-\mu_x)}{(\frac{S_x^2}{n_x}+\frac{S_y^2}{n_y})^\frac{1}{2}} \sim t(df)$ \\$df=\frac{(s_x^2/n_x + s_y^2/n_y)^2}{\frac{(s_x^2/n_x)^2}{n_x - 1} + \frac{(s_y^2/n_y)^2}{n_y - 1}}$
+    
+    \item \hl{Assessing normality}\\
+    1. Q-Q plot. X: $x_k=\Phi^{-1}(\frac{k-0.5}{n})$, Y: $y_{(1)},...,y_{(n)}$.\\
+    2. Kernal Density Plot.\\
+    3. Shapiro-Wilk Test.\\ $W=\frac{(\sum_{i=1}^na_iY_{(i)})^2}{\sum_{i=1}^n(Y_i-\bar{Y}_n)^2}$. $0\le W\le 1$. Null is rejected for smaller values of W.
+    \item \hl{Hypothesis Testing:}\\
+    $H_0$: $Y\sim f(y;\theta_0)$, $H_1$: $Y\sim f(y;\theta_1)$\\ 
+    Sufficient statistic: $T(Y)$\\
+    Critical Region: $R_\alpha$\\
+    Significance level $\alpha$: $P(T(Y)\in R_\alpha|H_0)\le \alpha$\\
+    \[
+    \scriptsize
+    \begin{array}{|c|c|c|}
+    \hline
+    \text{Truth} & H_0 & H_a \\
+    \hline
+    H_0 & \text{Correctly accept null} & \text{Type I error } (\alpha) \\
+    H_a & \text{Type II error } (\beta) & \text{Correctly reject null} \\
+    \hline
+    \end{array}
+    \]
+
+    Type I error: $P(T(Y)\in R_\alpha|H_0)= \alpha$\\
+    Type II error: $P(T(Y)\notin R_\alpha|H_a)= \beta$\\
+    Power: $P(T(Y)\in R_\alpha|H_a)= 1-\beta$\\
+    (1) Power of a one sided test is greater than the power of the associated two sided test.\\ (2) Power increases as $\mu_1$ gets further away from $\mu_0$.\\(3) Power increases as n goes up.\\
+    P-value: $P=Pr(T\ge t|H_0)$. $P\sim U(0,1)$ under $H_0$.
+    
+    \item \hl{Generalized Likelihood Ratio Testing} (GLRT):\\
+    $\Lambda(y)=\frac{f_Y(y;n,p_0)}{f_Y(y;n,\hat{p})}$. $p_0$ is the null; $\hat{p}$ is the MLE. $R_\alpha=\{y:\Lambda(y)\le k_\alpha\}$. Find $k_\alpha$ such that $P(R_\alpha|H_0)=\alpha$.
+
+    \item \hl{Test Exponential distribution}\\
+    One sample: $\overline{Y}_n \sim \text{Gamma}(n, n\lambda_0)$ under $H_0$\\
+    Two sample: $\frac{\lambda_2 \overline{Y}_1}{\lambda_1 \overline{Y}_2} \sim F_{2n_1, 2n_2}$\\
+    GLR: $\Lambda = \frac{L(Y; \hat{\lambda}_0)}{L(Y; \hat{\lambda}_1, \hat{\lambda}_2)} 
+    = \frac{e^{-n} \overline{Y}^{-n}}{e^{-n} \overline{Y}_1^{-n_1}\overline{Y}_2^{-n_2}} 
+    = \left(\frac{\overline{Y}}{\overline{Y}_1}\right)^{-n_1} \left(\frac{\overline{Y}}{\overline{Y}_2}\right)^{-n_2}\le 1; 
+    \text{where } n = n_1 + n_2; \quad \overline{Y} = n_1 \overline{Y}_1 + n_2 \overline{Y}_2$
+    
+    \item \hl{(One sample) Binomial Proportion}\\
+    $H_0:p=p_0$. $\hat{p}=\frac{x}{n}$\\
+    (1) Score test: $\frac{\hat{p}-p_0}{\sqrt{p_0(1-p_0)/n}}\sim Z$ (large n)\\
+    (2) Wald test: $\frac{\hat{p}-p_0}{\sqrt{\hat{p}(1-\hat{p})/n}}\sim Z$ (large n)\\
+    (3) Agresti-Coull interval:\\ $\quad 
+    \tilde{p} \pm Z_{1-\alpha/2} \sqrt{\frac{\tilde{p}(1-\tilde{p})}{\tilde{n}}}$, \\where $\quad \tilde{p} = \frac{X+2}{n+4} \quad \text{and} \quad \tilde{n} = n+4$\\
+    (4) Exact test: exact P-value (binomial)
+    \item \hl{Two binomial proportions (2x2 table)}\\
+    $X\sim B(n_1,p_1),Y\sim B(n_2,p_2)$,\\ $\hat{p}_1=\frac{X}{n_1}$, $\hat{p}_2=\frac{Y}{n_2}$, $H_0:p_1=p_2$\\
+    (1) Wald: $TS=\frac{\hat{p}_1-\hat{p}_2}{\sqrt{\frac{\hat{p}_1(1-\hat{p}_1)}{n_1}+\frac{\hat{p}_2(1-\hat{p}_2)}{n_2}}}\sim Z$, $\hat{p}_1 - \hat{p}_2 \pm Z_{1-\alpha/2} \sqrt{\frac{\hat{p}_1(1 - \hat{p}_1)}{n_1} + \frac{\hat{p}_2(1 - \hat{p}_2)}{n_2}}$\\
+    (2) Score: $TS=\frac{\hat{p}_1-\hat{p}_2}{\sqrt{\hat{p}(1-\hat{p})(\frac{1}{n_1}+\frac{1}{n_2})}}\sim Z$, where $\hat{p}=\frac{X+Y}{n_1+n_2}$.\\
+    For $H_0 : p_1 - p_2 = \Delta: $\\
+    $TS(\Delta) = \frac{\hat{p}_1 - \hat{p}_2 - \Delta}{\sqrt{\frac{\hat{p}_1(\Delta)(1 - \hat{p}_1(\Delta))}{n_1} + \frac{\hat{p}_2(\Delta)(1 - \hat{p}_2(\Delta))}{n_2}}}
+    $\\
+    Confidence interval: $ \{ \Delta : |TS(\Delta)| \leq z_{\alpha/2} \}$\\
+    (3) t test: $t = \frac{\hat{p}_1 - \hat{p}_2}{S_p \sqrt{\left(\frac{1}{n_{1+}} + \frac{1}{n_{2+}}\right)}}\sim t_{N-2}$,\\ where $S_p^2 = \frac{1}{N - 2} \left( \frac{X(n_{1+} - X)}{n_{1+}} + \frac{Y(n_{2+} - Y)}{n_{2+}} \right)$
+    
+    (3) $\chi^2$ Test: Approximate, best for large samples, two-sided. Equivalent to score $TS^2$ . $T^2=\sum\frac{(O-E)^2}{E}=\frac{N(n_{11}n_{22}-n_{12}n_{21})^2}{n_{1+}n_{2+}n_{+1}n_{+2}}\sim \chi^2_1$\\
+    (4) Fisher's exact test: small cell counts, conditioning on both margins. (conservative)\\
+    $E[x_{ij}]=r_i\times c_j/N$\\
+    \[
+    \scriptsize
+    \begin{array}{|c|c|c|c|}
+    \hline
+     & \text{Red} & \text{Black} & \text{Total} \\
+    \hline
+    \text{Sampled} & x & k - x & k \\
+    \text{Unsampled} & n - x & N - n - k + x & N - k \\
+    \hline
+    \text{Total} & n & N - n & N \\
+    \hline
+    \end{array}
+    \]
+    
+    $
+    P(X = x; N, n, k) = \frac{\binom{n}{x} \binom{N-n}{k-x}}{\binom{N}{k}}
+    $\\
+    (n and k can interchange)
+
+    (5) Barnard's Test (exact): column margin not fixed; small sample; larger power than Fisher's test.\\
+    $P_0(X, Y; p) = \binom{n_1}{n_{11}} \binom{n_2}{n_{21}} p^{n_{11} + n_{21}} (1 - p)^{n_{12} + n_{22}}$, take the maximum as p.
+    
+\end{itemize}
+
+
+
+\section*{Association of 2*2 Table}
+\begin{itemize}
+    \item \hl{Risk Difference}\\
+    $RD = p_1 - p_2$, 
+    $\hat{RD} = \hat{p}_1 - \hat{p}_2 = \frac{X}{n_1} - \frac{Y}{n_2}$\\
+    Asymptotic CI:\\
+    (1)Wald CI\\
+    $SE_{RD} = \left( \frac{p_1(1 - p_1)}{n_1} + \frac{p_2(1 - p_2)}{n_2} \right)^{1/2}$\\
+    $ \hat{SE}_{\hat{RD}} = \left( \frac{\hat{p}_1(1 - \hat{p}_1)}{n_1} + \frac{\hat{p}_2(1 - \hat{p}_2)}{n_2} \right)^{1/2}$\\
+    
+    $\hat{RD} \pm z_{1 - \alpha/2} \hat{SE}_{\hat{RD}}$\\
+    (2)Agresti-Caffo interval:\\ \( \tilde{p}_1 = \frac{x + 1}{n_1 + 2} \), \( \tilde{n}_1 = n_1 + 2 \), \( \tilde{p}_2 = \frac{y + 1}{n_2 + 2} \) and \( \tilde{n}_2 = n_2 + 2 \)\\
+   $ \hat{SE}_{\hat{RD}} = \left( \frac{\tilde{p}_1(1 - \tilde{p}_1)}{\tilde{n}_1} + \frac{\tilde{p}_2(1 - \tilde{p}_2)}{\tilde{n}_2} \right)^{1/2}
+    $
+    CI for \( p_1 - p_2 \) is:
+    \(
+    \hat{RD} \pm z_{1 - \alpha/2} \hat{SE}_{\hat{R}_D}
+    \)
+    \item \hl{Delta method and transformation of RD}\\
+    $f(\hat{\theta}) = f(\theta) + (\hat{\theta} - \theta) f'(\theta)$ + higher-order terms, so $\text{Var}(f(\hat{\theta})) \approx [f'(\theta)]^2 \cdot \text{Var}(\hat{\theta})$\\ $\frac{f(\hat{\theta}) - f(\theta)}{|f'(\hat{\theta})| \, \hat{SE}_{\hat{\theta}}} \to N(0,1)$\\
+    An asymptotic CI for \(f(\theta)\):
+    $
+    f(\hat{\theta}) \pm z_{1-\alpha/2} |f'(\hat{\theta})| \, \hat{SE}_{\hat{\theta}}
+    $
+    
+
+    Eg.: $RD = p_1 - p_2 =: \theta$, $f(\theta) = \tanh^{-1}(\theta) = \frac{1}{2} \left[\log(1 + \theta) - \log(1 - \theta)\right]$
+    
+    RD is between $(-1, 1)$, and this transformation stretches it out over the entire real line $(-\infty, \infty)$
+    
+    $f'(\theta) = \frac{0.5}{1+\theta} + \frac{0.5}{1-\theta} = \frac{1}{(1+\theta)(1-\theta)}$
+    
+    $\hat{SE}(f(\hat{\theta})) = \frac{1}{(1+\hat{\theta})(1-\hat{\theta})} \hat{SE}_{\hat{\theta}}$
+    
+    CI:
+    $f(\hat{\theta}) \pm \frac{z_{1-\alpha/2}}{(1+\hat{\theta})(1-\hat{\theta})} \hat{SE}_{\hat{\theta}}$
+    
+    We invert the endpoints of interval: 
+    $f^{-1}(x) = \tanh(x) = \frac{e^x - e^{-x}}{e^x + e^{-x}}$
+
+    \item \hl{Relative Risk}
+    $RR = \frac{p_1}{p_2} =: \theta$
+
+    $ \hat{RR} = \hat{\theta} = \frac{\hat{p}_1}{\hat{p}_2} = \frac{X / n_1}{Y / n_2}$ \\(consistent, biased)
+    
+    $\text{Common Transform } f(\theta) = \log(\theta)$
+    $\text{The standard error for } \log \hat{RR} \text{ is}$
+
+    $
+    \hat{SE}_{\log \hat{RR}} = \left( \frac{1 - \hat{p}_1}{n_1 \hat{p}_1} + \frac{1 - \hat{p}_2}{n_2 \hat{p}_2} \right)^{1/2}
+    $
+    
+    $CI: \log(\hat{RR}) \pm z_{1 - \alpha/2} \hat{SE}_{\log \hat{RR}}$
+
+    \item \hl{Odds Ratio}\\
+    $\text{odds ratio}
+     = \frac{\frac{p_1}{1 - p_1}}{\frac{p_2}{1 - p_2}} = \frac{p_1(1 - p_2)}{p_2(1 - p_1)}
+    $
+    
+    $
+    \hat{OR} = \frac{\frac{\hat{p}_1}{1 - \hat{p}_1}}{\frac{\hat{p}_2}{1 - \hat{p}_2}} = \frac{n_{11} n_{22}}{n_{12} n_{21}}
+    $\\
+    $
+    \hat{SE}_{\log \hat{OR}} = \sqrt{\frac{1}{n_{11}} + \frac{1}{n_{12}} + \frac{1}{n_{21}} + \frac{1}{n_{22}}}
+    $\\
+    $\log(\hat{OR}) \pm z_{1 - \alpha / 2} \hat{SE}_{\log \hat{OR}}$\\
+    By Bayes' Rule, $\frac{P_1 / (1 - P_1)}{P_2 / (1 - P_2)} = 
+    \frac{\Pr(E = 1 \mid D = 1) \Pr(E = 0 \mid D = 0)}{\Pr(E = 1 \mid D = 0) \Pr(E = 0 \mid D = 1)}
+    $
+    \item \hl{Relationship between RR and OR}\\
+    $RR = \frac{p_1}{1 - p_1} 
+    \left[
+    \frac{(1 - p_2) + (1 - p_1)\pi / (1 - \pi)}{p_2 + p_1\pi / (1 - \pi)}
+    \right]$
+    
+    When the disease is rare, i.e., \(\pi \approx 0\), we have:
+    $\frac{\pi}{1 - \pi} = 0.$
+    
+    $RR = \frac{p_1 (1 - p_2)}{(1 - p_1) p_2} = OR$
+
+    \item \hl{Exact Inference (conditional)}\\
+    $
+    \scriptsize
+    \begin{array}{|c|c|c|c|}
+    \hline
+     & \text{Exposed} & \text{Unexposed} & \text{Total} \\
+    \hline
+    \text{Disease} & a & b & n_1 \\
+    \text{No-Disease} & c & d & N - n_1 \\
+    \hline
+    \text{Total} & m_1 & N - m_1 & N \\
+    \hline
+    \end{array}
+    $
+    
+
+    $
+    L(\psi; a) =
+    \frac{\binom{n_1}{a} \binom{N - n_1}{m_1 - a} \psi^a}
+    {\sum_u \binom{n_1}{u} \binom{N - n_1}{m_1 - u} \psi^u}.
+    $\\
+    $
+    L(\psi; a)$ is a conditional likelihood which is maximized to get $ \hat{\psi}, \text{ the CMLE}$.
+    
+    $
+    \hat{\psi} \neq \frac{ad}{bc}$ 
+    
+    
+    Let \((\psi_L, \psi_U)\) be the \( 100(1 - \alpha)\% \) CI for \(\psi\):
+    
+    $
+    \frac{\alpha}{2} = \sum_{t \geq a} P(t; m_1, n_1, n_2, \psi_L)
+    $
+    
+    $
+    \frac{\alpha}{2} = \sum_{t \leq a} P(t; m_1, n_1, n_2, \psi_U)
+    Fisher.test() in R
+ 
+\end{itemize}
+
+\section*{Stratification}
+\begin{itemize}
+    \item Simpson's Paradox:\\ $P(A \mid B) > P(A \mid \bar{B})$,\\ $P(A \mid B, C) < P(A \mid \bar{B}, C)$,\\ $P(A \mid B, \bar{C}) < P(A \mid \bar{B}, \bar{C})$\\
+    Confounding: correlated with both the explanatory and response variables.\\
+    Stratification: stratify by the confounder and then combine the strata-specific estimates.
+    \item Logic Estimator:\\
+    \[
+    \renewcommand{\arraystretch}{1.2}
+    \setlength{\tabcolsep}{3pt}
+    \text{\small
+    \begin{tabular}{lccc}
+    \hline
+     & \text{Exposed} & \text{Unexposed} & \text{Total} \\ \hline
+    \text{Disease} & $a_i$ & $b_i$ & $n_{1i}$ \\
+    \text{No-Disease} & $c_i$ & $d_i$ & $n_{0i}$ \\ \hline
+    \text{Total} & $m_{1i}$ & $m_{0i}$ & $N_i$ \\
+    \hline
+    \end{tabular}
+    }
+    \]
+    $\log \hat{\psi}_W = \frac{\sum_{i=1}^K w_i [\log(a_i d_i) - \log(b_i c_i)]}{\sum_{i=1}^K w_i}$\\
+    $Var(\log \hat{\psi}_W) = \frac{1}{\sum_{i=1}^K w_i}$,\\ where $
+    w_i = \left\{ \frac{1}{a_i} + \frac{1}{b_i} + \frac{1}{c_i} + \frac{1}{d_i} \right\}^{-1}.
+    $\\
+    Performs well in large tables. Cannot handle a zero cell. Not commonly used.
+    \item Cochran-Mantel-Haenszel estimator\\
+    $\hat{\theta}_k = \frac{a_k d_k}{b_k c_k}$, $\hat{\theta} = \frac{\sum_k w_k \hat{\theta}_k}{\sum_k w_k}$, $W_k = \frac{b_k c_k}{N_k}$, $\Rightarrow \hat{\theta}_{MH} = \frac{\sum_k a_k d_k/N_k}{\sum_k b_k c_k/N_k}$
+    \item CMH test \\Conditioned on rows and columns\\
+    $H_0 : \psi_1 = \cdots = \psi_k = 1 $\\$ H_a : \psi_1 = \cdots = \psi_k \neq 1$\\
+    $E(a_k) = \frac{n_{1k} m_{1k}}{N_k}$,\\ $Var(a_k) = \frac{n_{1k} n_{0k} m_{1k} m_{0k}}{N_k^2 (N_k - 1)}$,\\ $TS=\frac{\left[\sum_k \{a_k - E(a_k)\}\right]^2}{\sum_k \text{Var}(a_k)}\sim \chi_1^2$ for large sample size.\\
+    Exact CMH test: mantelhaen.test(data, exact = TRUE)
+    \item Test Homogeneity of odds ratio:\\ DescTools::BreslowDayTest(data)
+    
+
+
+\end{itemize}
+
+\section*{Matching}
+\begin{itemize}
+    \item Matched binary data:\\
+    Arise from (1) Measuring a response at two occasions; (2) Matching exposed to unexposed in a prospective study; (3) Matching on case to control in a retrospective study.\\
+    $\begin{array}{c|ccc}
+        & \multicolumn{3}{c}{\textbf{Time 2}} \\
+        \cline{2-4}
+        \textbf{Time 1} & \textbf{Yes} & \textbf{No} & \textbf{Total} \\
+        \hline
+        \textbf{Yes} & n_{11} & n_{10} & n_{1+} \\
+        \textbf{No} & n_{01} & n_{00} & n_{0+} \\
+        \textbf{Total} & n_{+1} & n_{+0} & n \\
+    \end{array}$\\
+    True probability:\\
+    $\begin{array}{c|ccc}
+        & \multicolumn{3}{c}{\textbf{Time 2}} \\
+        \cline{2-4}
+        \textbf{Time 1} & \textbf{Yes} & \textbf{No} & \textbf{Total} \\
+        \hline
+        \textbf{Yes} & \pi_{11} & \pi_{10} & \pi_{1+} \\
+        \textbf{No} & \pi_{01} & \pi_{00} & \pi_{0+} \\
+        \textbf{Total} & \pi_{+1} & \pi_{+0} & 1 \\
+    \end{array}$\\
+    Let $p_1=1-q_1$ be the exposure probability of cases, $p_0=1-q_0$ be the exposure probability of controls.\\ Odds ratio $\psi = \frac{p_1/q_1}{p_0/q_0} = \frac{p_1 q_0}{q_1 p_0}$;\\
+    $\pi = \frac{p_1 q_0}{p_1 q_0 + p_0 q_1} = \frac{\psi}{1 + \psi}$
+    \item Matched paired inference\\
+    $\hat{\pi} = \frac{n_{10}}{n_{10} + n_{01}}$, $\hat{\psi} = \frac{n_{10}}{n_{01}}$ \\
+    $P(n_{10} \mid n_{10} + n_{01}; \pi) = \binom{n_{10} + n_{01}}{n_{10}} \pi^{n_{10}} (1 - \pi)^{n_{01}}$\\
+    Exact CI for $\pi$:\\ Solve
+    $\frac{\alpha}{2} \geq \sum_{n_{10}=0}^{n_{10}} P(n_{10} \mid n_{10} + n_{01}; \pi_U)$,
+    $\frac{\alpha}{2} \geq \sum_{n_{10}=n_{10}}^{n_{10} + n_{01}} P(n_{10} \mid n_{10} + n_{01}; \pi_L)$\\
+    Approximate CI for $\pi$:\\ Solve
+    $Z_{\alpha / 2} = \frac{\left[n_{10} - \pi_L (n_{10} + n_{01})\right] - 0.5}{\sqrt{(n_{10} + n_{01}) \pi_L (1 - \pi_L)}}$, 
+    $Z_{1 - \alpha / 2} = \frac{\left[n_{10} - \pi_U (n_{10} + n_{01})\right] + 0.5}{\sqrt{(n_{10} + n_{01}) \pi_U (1 - \pi_U)}}$.\\
+    Exact/Approximate CI for $\psi$: $\psi_L = \frac{\pi_L}{1 - \pi_L}$, $\psi_U = \frac{\pi_U}{1 - \pi_U}$.\\
+    \item Hypothesis testing (McNemar's test)\\
+    $H_0 : \pi = 1/2$, $H_1 : \pi \neq 1/2$. Equivalent to $H_0 : \psi = 1$, $H_1 : \psi \neq 1$.
+    $X^2 = \frac{(n_{10} - n_{01})^2}{n_{10} + n_{01}}$ Or (continuity corrected) $X^2=\frac{\left( |n_{10} - n_{01}| - 1 \right)^2}{n_{10} + n_{01}}$  $\sim \chi^2_1$ for large sample. (two-sided)
+    \item Marginal Inference\\
+    Marginal odds ratio = $\frac{\pi_{1+}  \pi_{+2}}{\pi_{+1}  \pi_{2+}}$\\
+    MLE of marginal log odds ratio: $\hat{\theta} = \log\left\{\frac{\hat{\pi}_{1+} \hat{\pi}_{+2}}{\hat{\pi}_{+1} \hat{\pi}_{2+}}\right\}$\\
+    Asymptotic variance of it:\\ $
+    \{ (\pi_{1+} \pi_{2+})^{-1} + (\pi_{+1} \pi_{+2})^{-1} $\\
+    $- 2 \frac{(\pi_{11} \pi_{22} - \pi_{12} \pi_{21})}{(\pi_{1+} \pi_{2+} \pi_{+1} \pi_{+2})} \} / n
+    $  
+\end{itemize}
+
+\section*{Contingency Table}
+\begin{itemize}
+    \item Sampling for contingency table: \\
+    (1) Poisson distribution\\
+    (2) Multinomial distribution\\
+    (3) Product Multinomial distribition (response and explanatory)
+    \item Chi-squred Test for 2*2 Tables\\
+    $X^2 = \sum \frac{(\text{Observed} - \text{Expected})^2}{\text{Expected}}= \frac{n (n_{11} n_{22} - n_{12} n_{21})^2}{n_{+1} n_{+2} n_{1+} n_{2+}}\sim \chi_1^2$ (asymptotic)
+    \item I*J Tables\\
+    $X^2 = \sum \frac{(\text{Observed} - \text{Expected})^2}{\text{Expected}}\sim \chi^2_{df}$,\\ $E_{ij}=n_{i+}n_{+j}/n$, \\df = (Rows-1)(Cols-1)
+\end{itemize}
+
+\section*{Survival}
+\begin{itemize}
+    \item $S(t) = 1 - F(t)  = \int_t^\infty f(u) \, du$\\
+    $h(t)=P(t<T\le t+\Delta t|T>t)/\Delta t$\\
+    $h(t)=f(t)/S(t)$\\
+    $H(t)=\int_0^th(u)du$\\
+    $S(t)=exp[-H(t)]$\\
+    $\mu(x)= E[T-x|T>x]= \frac{\int_x^\infty (u-x) f(u) \, du}{P(T > x)} = \frac{\int_x^\infty S(u) \, du}{S(x)}$
+    \item $\text{Likelihood } L = \prod_{i=1}^n \left[ f(Y_i) \right]^{\delta_i} \left[ S(Y_i) \right]^{1-\delta_i} = \prod_{i=1}^n \left[ h(Y_i) \right]^{\delta_i} S(Y_i)$
+    \item Kaplan-Meier Estimation\\
+    $S(t) = \prod_{j : t_j \leq t} \left( 1 - \frac{d_j}{n_j} \right)$ \\Eg.
+
+    \begin{tabular}{|c|c|c|c|c|c|}
+    \hline
+    \textbf{t} & \textbf{n} & \textbf{d} & \textbf{c} & $\frac{n-d}{n}$ & $S(t)$ \\ \hline
+    0 & 100 & 0  & 0 & 1.0   & 1.0   \\ \hline
+    1 & 100 & 15 & 2 & 0.85  & 0.85  \\ \hline
+    2 & 83  & 5  & 5 & 0.9398 & 0.7988 \\ \hline
+    3 & 73  & 10 & 2 & 0.8630 & 0.6894 \\ \hline
+    \end{tabular}
+
+
+
+\end{itemize}
+
+\section*{Test}
+\begin{itemize}
+    \item Goodness of fit\\
+    $(n_1, \dots, n_K) \sim \text{Multinom}(p_1, \dots, p_K, N)$, $\sum_k p_k = 1$.  \\
+    $X^2 = \sum \frac{(\text{O} - \text{E})^2}{\text{E}} = \sum_{k=1}^K \frac{(n_k - N p_k)^2}{N p_k}$.  
+    Approximately, $X^2 \sim \chi^2_{K-1}$.
+    \item Sign Test\\
+    Let $S$ be the number of times $D > 0$.
+    $S\sim B(n, p)$
+    $H_0 : p = 0.5$. \\
+    Asymptotics: $\frac{(S - n/2)}{\sqrt{n/4}} \sim Z$ or $\frac{(S - n/2 \pm 1/2)}{\sqrt{n/4}} \sim Z$  \\ 
+    Large sample: $\frac{(2S - n)^2}{n} \sim \chi^2_1$ or $\frac{(|2S - n| - 1)^2}{n} \sim \chi^2_1$ 
+    \item Wilcoxon's Signed Rank Test\\
+    $W_+$: the rank sum for $d_i>0$\\
+    $E(W_+) = \frac{n(n+1)}{4} \\
+    Var(W_+) = \frac{n(n+1)(2n+1)}{24} \\
+    TS = \{ W_+ - E(W_+) \} / Sd(W_+) \to \text{Normal}(0, 1)$
+    \item Wilcoxon-Mann-Whitney test\\
+    $W$: sum of the ranks for treatment $B$.\\
+    $E(W) = \frac{n_B (n_A + n_B + 1)}{2}$,
+    $Var(W) = \frac{n_A n_B (n_A + n_B + 1)}{12}$,
+    $TS = \{ W - E(W) \} / Sd(W) \to N(0, 1)$       
+\end{itemize}
+
+\section*{Person-time analysis}
+    \begin{tabular}{l c c}
+    \hline
+     & \# of Events & Person-years \\
+    \hline
+    Group 1 & $x_1$ & $t_1$ \\
+    Group 2 & $x_2$ & $t_2$ \\
+    \hline
+    Total & $x_1 + x_2$ & $t_1 + t_2$ \\
+    \hline
+    \end{tabular}
+    
+\begin{itemize}
+    \item Poisson model. $H_0:\lambda_1=\lambda_2=\lambda$\\
+    $\hat{\lambda} = \frac{x_1 + x_2}{t_1 + t_2}$\\      
+    $
+    E_1 = \hat{\lambda} t_1 = (x_1 + x_2) \frac{t_1}{t_1 + t_2}$
+    $\\
+    E_2 = \hat{\lambda} t_2 = (x_1 + x_2) \frac{t_2}{t_1 + t_2}
+    $\\
+    $TS = \sum \frac{(O - E)^2}{E} = \frac{(x_1 - E_1)^2}{E_1} + \frac{(x_2 - E_2)^2}{E_2}\sim \chi^2(1)$\\
+    Or $TS = \frac{(x_1 - E_1)^2}{V_1}, V_1 = (x_1 + x_2) \frac{t_1 t_2}{(t_1 + t_2)^2}$
+    \item Estimating the relative rate\\
+    $IRR=\frac{\lambda_1}{\lambda_2}$\\
+    $\hat{IRR} = \left( \frac{x_1}{t_1} \right) / \left( \frac{x_2}{t_2} \right)$\\
+    $\mathrm{se}(\log \hat{IRR}) = \sqrt{\frac{1}{x_1} + \frac{1}{x_2}}$
+    \item Exact conditional test
+    $[X_1 \mid X_1 + X_2 = x_1 + x_2] \sim \text{Binomial} \left( x_1 + x_2, \frac{t_1}{t_1 + t_2} \right)$
+
+\end{itemize}
+
+\section*{Notes}
+\begin{itemize}
+    \item $(arctan(x))'=\frac{1}{1+x^2}$\\
+    $(arcsin(x))'=\frac{1}{\sqrt{(1-x^2)}}$\\
+    $(arccos(x))'=-\frac{1}{\sqrt{(1-x^2)}}$
+    \item $\int udv=uv-\int vdu$
+    \item $\sum_{i=1}^\infty a^i=\frac{1}{1-a}(0<a<1)$\\
+    $\sum_{i=1}^\infty ia^i=\frac{1}{(1-a)^2}(0<a<1)$\\
+    $e^x=\sum_{n=0}^\infty\frac{x^n}{n!}$
+    \item Cauchy-Schwarz inequality:\\ $(\sum_ia_ib_i)^2\le (\sum_i a_i^2)(\sum_i b_i^2)$
+    \item When n large, p small:\\ $1-(1-p)^n\approx np$
+    \item $\Gamma(z)=\int_0^\infty t^{z-1}e^{-t}dt$, \\
+    \hl{$a^{-z}\Gamma(z)=\int_0^\infty t^{z-1}e^{-at}dt$}, \\$\Gamma (n)=(n-1)!$
+    \item $B(x, y) = \int_0^1 t^{x-1} (1 - t)^{y-1} \, dt$\\
+    $B(x, y) = \frac{\Gamma(x) \Gamma(y)}{\Gamma(x + y)}$\\
+    \item $e^x = \lim_{n \to \infty} \left( 1 + \frac{x}{n} \right)^n$
+    \item $e^x=\sum_{n=0}^{\infty}\frac{x^n}{n!}$
+\end{itemize}
+
+
+
+\end{multicols}
+
+\end{document}

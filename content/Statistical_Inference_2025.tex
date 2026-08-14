@@ -1,0 +1,210 @@
+\documentclass[a4paper,10pt]{article}
+
+
+% 载入multicol包用于创建多列布局
+\usepackage{multicol}
+% 载入amsmath包用于数学公式
+\usepackage{amsmath}
+\usepackage{amssymb}
+% 设置页边距
+\usepackage{bm}
+\usepackage{soul}
+\usepackage{xcolor}
+\sethlcolor{cyan}
+\usepackage[margin=0.5in]{geometry}
+% 载入graphicx包用于插入图片
+\usepackage{graphicx}
+% 设置字体大小
+\usepackage{times}
+\renewcommand{\baselinestretch}{0.9} % 行距
+
+% 开始文档
+\begin{document}
+
+% 开启两列布局，调整全局字体大小为小一点
+\begin{multicols}{2}
+\small
+
+% 第一列开始
+
+% 调整section标题字号
+\section*{Chapter 1: Convergence properties}
+\begin{itemize}
+    \item Convergence properties:\\
+    Convergence of a sequence of real numbers.\\  
+    \hspace*{1cm}  $X_n(\omega) \to X(\omega)$ if for any $\epsilon > 0$, there is an integer $N$ that for $n > N$ implies that $|X_n(\omega) - X(\omega)| < \epsilon$.  
+    
+    Convergence almost surely\\
+    \hspace*{1cm}  $X_n(\omega) \xrightarrow{a.s.} X(\omega)$ if there exists a set $A \in \Omega$ that $P(A^c) = 0$ and for all $\omega \in A$, $X_n(\omega) \to X(\omega)$.  
+    
+    \hl{Convergence in probability}\\
+    \hspace*{1cm} $X_n \xrightarrow{p} X$ if for every $\epsilon > 0$, $P(|X_n - X| > \epsilon) \to 0$.  
+    
+   Convergence in distribution\\
+    \hspace*{1cm} $X_n \xrightarrow{d} X$ or $F_n \xrightarrow{d} F$ if $F_n(X) \to F(x)$ as $n \to \infty$ for each continuity point $x$ of $F$.
+
+    \item \textbf{Continuous Mapping Theorem:} Suppose \( g: \mathbb{R} \to \mathbb{R} \) is a continuous function in the support of \( X \). Then we have:
+
+    (1) If \( X_n \xrightarrow{a.s.} X \) then \( g(X_n) \xrightarrow{a.s.} g(X) \).
+    
+    (2) If \( X_n \xrightarrow{p} X \) then \( g(X_n) \xrightarrow{p} g(X) \).
+    
+    (3) If \( X_n \xrightarrow{d} X \) then \( g(X_n) \xrightarrow{d} g(X) \).
+
+    \item \textbf{Property \hl{(Delta Method)}:} If \( g^{(2)} \) exists and is continuous at \( \mu \) and  
+    \[
+    \sqrt{n} [X_n - \mu] \xrightarrow{d} N(0, \sigma^2)
+    \]
+    then  
+    \[
+    \sqrt{n} [g(X_n) - g(\mu)] \xrightarrow{d} N(0, [g^{(1)}(\mu)]^2 \sigma^2)
+    \]
+    where \( g^{(1)}(\mu) \) is the derivative of \( g \) evaluated at \( \mu \).
+
+
+    
+\end{itemize}
+
+\section*{Chapter 2. MLE}
+\begin{itemize}
+    \item \hl{Def (MLE)}: Let $\bm{X} = (X_1, X_2, \dots, X_n)$ be i.i.d.
+    Likelihood function: $L(\bm{\theta} | \bm{X}) = L(\theta_1, \dots, \theta_k | x_1, \dots, x_n) = \prod_{i=1}^{n} f(x_i; \bm{\theta}), \bm{\theta} \in \Theta \subseteq \mathbb{R}^k.$\\ 
+    $L(\hat{\bm{\theta}}) = \max_{\bm{\theta} \in \Theta} [L(\bm{\theta})]$,then $\hat{\bm{\theta}}$ is called the MLE of $\bm{\theta}$\\
+    Define the (likelihood) score function as $\frac{\partial \ln L(\bm{\theta})}{\partial \bm{\theta}}$. Then, 
+    $\frac{\partial \ln L(\bm{\theta})}{\partial \bm{\theta}} = \frac{\partial \ln f_{\bm{X}}(\bm{x}; \bm{\theta})}{\partial \bm{\theta}} = \left[ \frac{\partial \ln f_{\bm{X}}(\bm{x}; \bm{\theta})}{\partial \theta_1}, \dots, \frac{\partial \ln f_{\bm{X}}(\bm{x}; \bm{\theta})}{\partial \theta_k} \right]$
+    The MLE is often found by solving
+    $\frac{\partial \ln f_{\bm{X}}(\bm{x}; \bm{\theta})}{\partial \theta_j} = 0 \quad \text{for} \quad j = 1, 2, \dots, k$
+    \item Properties of MLE\\
+    1. Invariance: If $\hat{\bm{\theta}}$ is the mle of $\bm{\theta}$, then the mle of $\gamma$ is $\phi(\hat{\bm{\theta}})$.\\
+    2. Consistency: (Under regular conditions) Strong Consistency: $\theta_n \xrightarrow{a.s} \theta$, Weak Consistency: $\theta_n \xrightarrow{p} \theta$\\
+    3. \hl{Asymptotic Normality}: If $\bm{X}_1, \bm{X}_2, \dots, \bm{X}_n$ are i.i.d. then $\hat{\bm{\theta}}$ is asymptotically normal if 
+    $
+    \sqrt{n} (\hat{\bm{\theta}} - \bm{\theta}) \xrightarrow{d} N\left( 0, \frac{1}{I(\bm{\theta})} \right)
+    $ (single-observation $I(\theta)$)
+
+    \item \hl{Score Function}: $U_i(\theta) = \frac{\partial \ln [f(X_i; \theta)]}{\partial \theta}, E_{\theta} (U_i(\theta)) = 0\\
+    $ \hl{Fisher Information}: $I_n(\theta) = E \left\{ -\frac{\partial^2 \ln \left[ f_{\bm{X}}(\bm{x}; \theta) \right]}{\partial \theta^2} \right\}.$\\  
+    Property:$
+    I_n(\theta) = E \left\{ \left( \frac{\partial \ln \left[ f_{\bm{X}}(\bm{x}; \theta) \right]}{\partial \theta} \right)^2 \right\} = E \left\{ -\frac{\partial^2 \ln \left[ f_{\bm{X}}(\bm{x}; \theta) \right]}{\partial \theta^2} \right\}$
+
+    \item \hl{EM algorithm to compute MLE}\\E-step: Calculate the conditional expectation 
+    $E[\log f(Y; \theta) | Y_o, \theta^{(k)}] = \frac{\int_{Y_m} [\log f(Y; \theta)] f(Y; \theta^{(k)}) dY_m}{\int_{Y_m} f(Y; \theta^{(k)}) dY_m}.$  
+    M-step: Obtain $\theta^{(k+1)}$ by maximizing    
+    $
+    E[\log f(Y; \theta) | Y_o, \theta^{(k)}].$
+
+\end{itemize}
+
+\section*{Chapter3: Sufficient Statistics}
+\begin{itemize}
+    \item Sufficient statistics: Given random variables $\bm{X}$ and a family of probability distributions $\mathcal{F}$ for $\bm{X}$, a statistic $S$ is sufficient for the family $\mathcal{F}$ if the conditional distribution of $\bm{X}$ given $S$ is the same for every member of the family $\mathcal{F}$. Thus $S$ is a sufficient statistic for $\mathcal{F}$ if and only if, for any Borel set $A$, $P(\bm{X} \in A | S = s)$ is the same for all distributions in $\mathcal{F}$.
+    \item \hl{Factorization Theorem}: Let $\bm{X}$ have pdf $f_{\bm{X}}(\bm{x}; \theta)$ for $\theta \in \Theta$. $S(\bm{X})$ is a sufficient statistic for $\theta$ if and only if there exist functions $g$ and $h$ such that $f_{\bm{X}}(\bm{x}; \theta) = g(S(\bm{x}); \theta) h(\bm{x})$ where $h(\bm{x})$ does not depend on $\theta$.
+    \item Minimal sufficient statistics: A sufficient statistic $S$ is a minimal sufficient statistic if it is a function of every other sufficient statistic. Thus $S$ is a minimal sufficient statistic if (1) $S$ is sufficient.
+    (2) $S$ can be calculated from any other sufficient statistic: For any sufficient statistic $T$, there always exists a function $\phi$ so that $S = \phi(T)$.
+    \item \hl{Theorem:} Let \( f(x \mid \theta) \) be the pdf or pmf for a sample \( X \). Suppose that there exists a function \( S(\mathbf{x}) \) such that, for every two sample points \( x \) and \( y \), the ratio  
+    \[
+    \frac{f(x \mid \theta)}{f(y \mid \theta)}
+    \]
+    is a constant with respect to \( \theta \) if and only if \( S(\mathbf{x}) = S(\mathbf{y}) \), then \( S(X) \) is MSS.
+
+
+
+\end{itemize}
+    
+
+\section*{Chapter4: Unbiased Estimation}
+\begin{itemize}
+    \item \textbf{Mean square error:} The mean square error of an estimator \( \hat{\theta} \) is defined as:
+    \[
+    E[(\hat{\theta} - \theta)^2].
+    \]
+    This is a commonly used criterion to determine the accuracy of an estimator.
+    
+    \textbf{An unbiased estimator,} \( \hat{\theta} \), is a statistic which satisfies:
+    \[
+    E[\hat{\theta}] = \theta,
+    \]
+    where \( \theta \in \Theta \) is the true parameter value. Note that the expectation \( E[\cdot] \) is calculated using \( \theta \) as the true parameter value.
+    
+    \textbf{A minimal variance unbiased estimator (MVUE)} is an unbiased estimator which has the minimal variance in the class of all the unbiased estimators.
+
+    \item \hl{\textbf{Rao-Blackwell Theorem.}}
+
+    Let \( X \) and \( Y \) be jointly distributed random variables with \( E(Y) = \theta \) and \( \operatorname{var}(X) < \infty \). Then the function:
+    
+    \[
+    \phi(X) = E(Y \mid X)
+    \]
+    
+    is a random variable with the following properties:
+    
+    \begin{itemize}
+        \item \[
+            E[\phi(X)] = \theta
+            \]
+        \item \[
+            \operatorname{var}[\phi(X)] \leq \operatorname{var}(Y)
+            \]
+    \end{itemize}
+
+    \item \textbf{Cauchy-Schwartz inequality} in statistics:
+
+    \[
+    [E(XY)]^2 \leq E(X^2)E(Y^2)
+    \]
+    
+    for any bivariate vector \( (X,Y) \) with second moments. The equality holds if and only if
+    
+    \[
+    X = c \cdot Y,
+    \]
+    
+    where \( c \) is a constant.
+    \item \textbf{Complete statistic:} A statistic \( S = S(\mathbf{X}) \) is a complete statistic for \( \mathcal{F} \), where \( \mathcal{F} \) is the distribution family for the random vector \( \mathbf{X} \) if
+
+    \[
+    E_f[g(S)] = 0 \quad \text{for all } f \in \mathcal{F}
+    \]
+    
+    implies that \( g(S) = 0 \) with probability 1. Or equivalently, \( S = S(\mathbf{X}) \) is a complete statistic if its distribution family is complete.
+    
+    Using the concept of completeness, we will be able to show that if \( S \) is a complete sufficient statistic, then \( h(S) \) is the MVUE of its expected value.
+    \item \textbf{Basu's Theorem:} If \( S(X) \) is a complete and minimal sufficient statistic, then \( S(X) \) is independent of any ancillary statistic.
+
+    \item \hl{\textbf{Theorem:} (Lehmann-Scheffé)} If \( S \) is a complete sufficient statistic, then any real-valued statistic \( h(S) \) with finite variance is the MVUE of its expected value.
+
+    \item \textbf{Definition:} A family \( \mathcal{F} \) defined by
+
+    \[
+    \mathcal{F} = \{ f_{\mathbf{X}}(\mathbf{x}; \theta), \theta \in \Theta \}
+    \]
+    
+    is an \hl{exponential family} of distributions if
+    
+    \[
+    f_{\mathbf{X}}(\mathbf{x}; \theta) = c(\theta) h(\mathbf{x}) \exp \left\{ \sum_{j=1}^{k} \gamma_j(\theta) t_j(\mathbf{x}) \right\}.
+    \]
+
+    \item \hl{\textbf{Theorem:}} If \( X_1, X_2, \dots, X_n \) are i.i.d. from an exponential family and if the natural parameter space
+
+    \[
+    \left\{ (\gamma_1(\theta), \gamma_2(\theta), \dots, \gamma_k(\theta)) : \theta \in \Theta \right\}
+    \]
+    
+    contains a \( k \)-dimensional rectangle, then
+    
+    \begin{itemize}
+        \item (1) \( \left(\sum_i t_1(x_i), \sum_i t_2(x_i), \dots, \sum_i t_k(x_i) \right) \) is a MSS;
+        \item (2) this MSS is also complete.
+    \end{itemize}
+
+    \item \hl{Cramer Rao Lower Bound}: Let $S(X)$ be an unbiased estimator of $\gamma (\theta)$, then $var[S(X)]\ge \frac{[r'(\theta)]^2}{nI_1(\theta)}$. Efficienty of $T(X)$: $\frac{CRLB}{var[T(X)]}$.
+
+
+
+
+\end{itemize}
+
+\end{multicols}
+
+\end{document}

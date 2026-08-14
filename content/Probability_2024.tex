@@ -1,0 +1,291 @@
+\documentclass[a4paper,10pt]{article}
+
+% 载入multicol包用于创建多列布局
+\usepackage{multicol}
+% 载入amsmath包用于数学公式
+\usepackage{amsmath}
+% 设置页边距
+\usepackage[margin=0.5in]{geometry}
+% 载入graphicx包用于插入图片
+\usepackage{graphicx}
+% 设置字体大小
+\usepackage{times}
+
+\usepackage{soul}
+\usepackage{xcolor}
+\sethlcolor{cyan}
+
+\renewcommand{\baselinestretch}{0.9} % 行距
+
+% 开始文档
+\begin{document}
+
+% 开启两列布局，调整全局字体大小为小一点
+\begin{multicols}{2}
+\small
+
+% 第一列开始
+
+% 调整section标题字号
+\section*{Chapter 1: Introduction to Probability}
+\begin{itemize}
+    \item Probability Space\\
+    Sample space: collection of all possible outcomes\\
+    Event: a subset of the sample space
+    \item Event Space\\
+    $\mathcal{F}$ is an event space if it is a sigma-algebra satisfying:\\
+    1. If $A\in \mathcal{F}$, then $A^c\in \mathcal{F}$\\
+    2. $\Omega \in \mathcal{F}$\\
+    3. If $A_k \in \mathcal{F}$ for all $k=1,2,\ldots$, then $\cup_{k=1}^\infty A_k\in \mathcal{F}$\\
+    A power set (the collection of all subsets of $\Omega$) is  an event space.
+    \item Probability measure: $P:\mathcal{F}\to [0,1]$ is a probability measure if:\\
+    Axiom 1: Every $A\subseteq \Omega$, $P(A)\ge 0$\\
+    Axiom 2: $P[\Omega]=1$\\
+    Axiom 3: If $\{A_1,A_2,...\}$ is a countably infinite collection of mutually exclusive events, $P[\cup_{k=1}^\infty A_k]=\sum_{k=1}^\infty P[A_k]$\\
+    Probability space/model: $(\Omega,\mathcal{F},P)$
+    \item Properties\\
+    1. $P[\phi]=0$\\
+    2. $P[A^c]=1-P[A]$\\
+    3. If $A\subseteq B$, then $P[A]\le P[B]$\\
+    4. For every event A, $0\le P[A]\le 1$\\
+    5. $P[A\cup B]=P[A]+P[B]-P[A\cap B]$\\
+    6. (Continuity property) If $E_n$ is increasing or decreasing,\\ $P(lim_{n\to \infty}E_n)=lim_{n\to \infty}P(E_n)$\\
+    7. (Boole's inequality) $P(\cup_{i=1}^\infty E_i)\le \sum_{i=1}^\infty P(E_i)$
+\end{itemize}
+
+\section*{Chapter 2: Conditional Probability and Independence}
+\begin{itemize}
+    \item Conditional Probability: $P[A|B]=\frac{P[A,B]}{P[B]}$\\
+    Sensitivity $P[+|D]$, Specificity $P[-|\Bar{D}]$, PPV $P[D|+]$, NPV $P[\Bar{D}|-]$
+    \item Bayes' Rule: $P[A|B]=\frac{P[B|A]P[A]}{P[B|A]P[A]+P[B|A^c]P[A^c]}$\\
+    Generalized: $P[A_1|B]=\frac{P[B|A_1]P[A_1]}{\sum_{k=1}^K P[B|A_k]P[A_k]}$, $A_i$ is a partition.
+    \item Independence of events:\\
+    A and B are independent iff $P[A\cap B]=P[A]P[B]$\\ Or $P[A|B]=P[A]$\\
+    $A_1,...,A_k$ are mutually independent iff for every subsets, $P[A_{i_1}\cap ...\cap A_{i_m}|A_{j_1}\cap ...\cap A_{j_l}]=P[A_{i_1}\cap ...\cap A_{i_m}]$\\
+    Or $P[A_{k_1}\cap ...\cap A_{k_p}]=P[A_{k_1}]\times ...\times P[A_{k_p}]$
+\end{itemize}
+
+\section*{Chapter 3: Random variables and Probability Distributions}
+\begin{itemize}
+    \item Random variable: $X:\Omega\to R$, $x=X(\omega)$. X is required to be measurable: for every x, $\{\omega:X(\omega)\le x\}\in \mathcal{F}$.
+    \item Distribution:\\
+    Continuous: cdf $F_X(x)=P[X\le x]=\int_{-\infty}^xf_X(u)du$,\\ pdf $f_X(x)=\frac{d}{dx}F_X(x)$\\
+    Discrete: cdf $F_X(x)=\sum_{x_k\le x}f_X(x_k)$,\\ pdf $f_X(x)=P(X=x)$\\
+    Properties of cdf: (1) Non-decreasing. (2) $F_X(-\infty)=0$, $F_X(\infty)=1$. (3)Number of jumps is either 0 or countably infinite. (4) Continuous from the right. (5) Discrete point is not continuous from the left. (6) $P[X=x]=F_X(x)-P[X<x]$ (6) For continuous point, $P[X=x]=0$.
+    \item Mean and Variance:\\
+    $E[X]=\sum_x xf_X(x)$ or $E[X]=\int xf_X(x)dx$\\
+    $Var[X]=E[(X-\mu)^2]=E[X^2]-\mu^2$, $SD[X]=\sqrt{Var[X]}$\\
+    $Cov[X_1,X_2]=E[(X_1-\mu_1)(X_2-\mu_2)]=E[X_1X_2]-\mu_1\mu_2$\\
+    $Corr[X_1,X_2]=\frac{Cov[X_1,X_2]}{SD[X_1]SD[X_2]}$, $-1\le Corr[X_1,X_2]\le 1$\\
+    For $a>0,b>0$, $Cov[aX_1,bX_2]=abCov[X_1,X_2]$,\\ $Corr[aX_1,bX_2]=Corr[X_1,X_2]$.
+    \item Quantile: $F_X^{-1}(q)=inf\{x:F_X(x)\ge q\}$
+    \item Examples of distribution\\
+    1. $X\sim Bernoulli(p)$, $f(x)=p^x(1-p)^{1-x}$\\
+    2. $X\sim Binom(n,p)$,$f(x)=\binom{n}{x}p^x(1-p)^{n-x}$\\
+    3. $X\sim Poisson(\lambda)$, $f(x)=\frac{e^{-\lambda}\lambda^x}{x!}$\\
+    $Poisson(\theta)+Poisson(\lambda)\sim Poisson(\theta+\lambda)$\\
+    4. $X\sim Hypergeometric(N,K,n)$, $f(x)=\frac{\binom{K}{x}\binom{N-K}{n-x}}{\binom{N}{n}}$\\
+    5. $X\sim Exp(\lambda)$, $f(x)=\lambda e^{-\lambda x}$, $x\ge 0$\\
+    $Exp(\lambda)+Exp(\lambda)\sim Gamma(2,\lambda)$\\
+    6. $X\sim Geometric(p)$, $f(x)=(1-p)^{x-1}p$\\(x: total times)\\
+    7. $X\sim NB(n,p)$, $f(x)=\binom{x-1}{n-1}(1-p)^{x-n}p^n$\\(n: success times; x: total times)\\
+    8. $X\sim N(\mu,\sigma^2)$, $f(x)=\frac{1}{\sqrt{2\pi \sigma^2}}e^{-\frac{(x-\mu)^2}{2\sigma^2}}$
+\end{itemize}
+
+\section*{Chapter 4: Bivariate and Multivariate Distributions}
+\begin{itemize}
+    \item Bivariate Distribution\\
+    Discrete bivariate distribution: $f_X(x)=f_{X_1,X_2}(x_1,x_2)=P[X_1=x_1,X_2=x_2]$\\
+    $F_{X_1,X_2}(x_1,x_2)=\sum_{x_{1k}\le x_1}\sum_{x_{2l}\le x_2}f_{X_1,X_2}(x_{1k},x_{2l})$\\
+    Continuous bivariate distribution: $P[(X_1,X_2)\in A]=\iint f_{X_1,X_2}(x_1,x_2)I((x_1,x_2)\in A)dx_1dx_2$\\
+    $F_{X_1,X_2}(x_1,x_2)=\int_{-\infty}^{x_1} \int_{-\infty}^{x_2} f_{X_1,X_2}(u,v)dvdu$\\
+    Survival Function: $S_{X_1,X_2}(x_1,x_2)=P[X_1>x_1,X_2>x_2]$
+    \item Marginal Distribution\\
+    $F_{X_1}(x_1)=P[X_1\le x_1,X_2<\infty]=F_{X_1,X_2}(x_1,\infty)$\\
+    $f_{X_1}(x_1)=\frac{dF_{X_1,X_2}(x_1,\infty)}{dx_1}=\int_{-\infty}^{\infty}f_{X_1,X_2}(x_1,x_2)dx_2$
+    \item Conditional Distribution\\
+    $X_1$ and $X_2$ are independent iff $f_{X_1,X_2}(x_1,x_2)=f_{X_1}(x_1)f_{X_2}(x_2)$\\
+    $f_{X_2|X_1}(x_2|x_1)=\frac{f_{X_1,X_2}(x_1,x_2)}{f_{X_1}(x_1)}$\\
+    $E[X_2|X_1=x_1]=\int_{x_2}x_2f_{X_2|X_1}(x_2|x_1)dx_2$
+    \item Multivariate Distribution\\
+    $F_X(x)=P[X_1\le x_1,...,X_n\le x_n]$\\
+    $f_X(x)=P[X_1= x_1,...,X_n= x_n]$\\
+    $X_i$ are mutually independent if $f_X(x)=f_{X_1}(x_1)...f_{X_n}(x_n)$\\
+    Conditional independence
+    \item Convolution
+    \hl{$Z=X+Y$, $f_Z(z)=\int_{-\infty}^\infty f_X(x)f_Y(z-x)dx$}
+\end{itemize}
+
+\section*{Chapter 5: Expectation and Moments}
+\begin{itemize}
+    \item Expectation: $E[X]=\int xdF_X(x)$. $E[r(X)]=\int r(x)dF_X(x)$\\
+    Properties: 1. $E[\sum_{i=1}^na_iX_i]=\sum_{i=1}^na_iE[X_i]$.\\
+    2. If $X_1,...,X_n$ independent, $E[\prod_{i=1}^nX_i]=\prod_{i=1}^nE[X_i]$
+    \item $Var[X]=E[(X-\mu)^2]=E[X^2]-\mu^2$, $SD[X]=\sqrt{Var[X]}$\\
+    $Cov[X_1,X_2]=E[(X_1-\mu_1)(X_2-\mu_2)]=E[X_1X_2]-\mu_1\mu_2$\\
+    $Corr[X_1,X_2]=\frac{Cov[X_1,X_2]}{SD[X_1]SD[X_2]}$, $-1\le Corr[X_1,X_2]\le 1$\\
+    Properties: \\
+    1. $Var[X]=0$ iff $P[X=c]=1$\\
+    2. $Var[aX+b]=a^2Var[X]$\\
+    3. $Var[X_1+X_2]=Var[X_1]+Var[X_2]+2Cov[X_1,X_2]$\\
+    4. $Cov[a_1X_1+b_1,a_2X_2+b_2]=a_1a_2Cov[X_1,X_2]$\\
+    5. Independence implies 0 correlation. 0 correlation doesn't imply independence.\\
+    6. If $X_2=aX_1+b$, $Corr[X_1,X_2]=\pm 1$\\
+    7. $Var(\sum_{i=1}^n a_i X_i+b)=\sum_{i=1}^na_i^2Var(X_i) + 2\sum_{i<j}a_ia_j$ $Cov(X_i,X_j)$
+    \item Moments\\
+    The kth moment of X: $E[X^k]$\\
+    The kth central moment of X: $E[(X-E[X])^k]$\\
+    The kth standardized moment of X: $E[(\frac{X-E[X]}{SD[X]})^k]$\\
+    (3rd:Skewness. 4th: Kurtosis)
+    \item Inequalities\\
+    \hl{Markov's Inequality: Y non-negative, $\epsilon >0$:\\ $P[Y\ge \epsilon]\le E[Y]/\epsilon$\\
+    Chebyshev's Inequality: $P[|X-\mu|\ge \epsilon] \le \sigma^2/\epsilon^2$\\
+    Cauchy-Schwartz Inequality: $(E[XY])^2\le E[X^2]E[Y^2]$}\\
+    Jensen's Inequality: \\If g is convex, $E[g(x)]\ge g(E[X])$\\
+    If g is concave, $E[g(x)]\le g(E[X])$
+    \item Conditional Expectation and Variance\\
+    $E[X_2|X_1=x_1]=\int_{x_2}x_2f_{X_2|X_1}(x_2|x_1)dx_2$\\
+    $E[r(X_1,X_2)|X_1=x_1]=\int_{x_2}r(x_1,x_2)f_{X_2|X_1}(x_2|x_1)dx_2$\\
+    $E[Y]=E[E[Y|X]]$\\
+    $Var[Y|X]=E[(Y-E[Y|X])^2|X]$\\
+    $Var[Y]=E[Var[Y|X]]+Var[E[Y|X]]$
+    \item \hl{Moment Generating Functions}\\
+    $\psi_X(t)=E[exp(tX)]$\\
+    Assume MGF exsits for t in an open interval around $t = 0$:\\
+    (1) $\psi_X^{(k)}(0)=E[X^k]$\\
+    (2) $Y=aX+b$, $\psi_Y(t)=exp(bt)\psi_X(at)$\\
+    \hl{(3)} $X_i$ independent, $Y=\sum_{i=1}^n X_i$, then $\psi_Y(t)=\prod_{i=1}^n\psi_{X_i}(t)$\\
+    (4) If the mgf of two random variables $X_1$ and $X_2$ are identical in an open
+interval around $t = 0$, then the distributions of these two random variables must be the same.
+\end{itemize}
+
+\section*{Chapter 6: Transformation of Random Variables}
+\begin{itemize}
+    \item Transformation of a Single Variable $Y=\phi(X)$:\\
+    For discrete X: $f_Y(y)=\sum_{x_k:\phi (x_k)=y}f_X(x_k)$\\
+    For continuous X: $F_Y(y)=\int_{x:\phi (x)\le y}f_X(x)dx$\\
+    If $\phi()$ continuous, monotonic: $f_Y(y)=f_X(\phi^{-1}(y))|\frac{d\phi^{-1}(y)}{dy}|$
+    \item Convolution: $Z=X+Y$\\
+    Continuous case: $F_Z(z)=\int_{-\infty}^\infty F_Y(z-x)f_X(x)dx$, $f_Z(z)=\int_{-\infty}^\infty f_Y(z-x)f_X(x)dx$\\
+    Discrete case: $P_Z(z)=\sum_x\sum_yP_X(x)P_Y(y)I(x+y=z)$\\
+    \item Transformation of multiple variables $\textbf{Y}=\phi(\textbf{X})$:\\
+    For discrete $\textbf{X}$: $f_\textbf{Y}(\textbf{y})=\sum_{\textbf{x}:\phi (\textbf{x})=\textbf{y}}f_\textbf{X}(\textbf{x})$\\
+    For continuous $\textbf{X}$: $F_\textbf{Y}(\textbf{y})=\int_{\textbf{x}:\phi (\textbf{x})\le \textbf{y}}f_\textbf{X}(\textbf{x})d\textbf{x}$\\
+    Assume $\textbf{x}=h(\textbf{y})$ exists, \\
+    \hl{$f_{Y_1,Y_2}(y_1,y_2)=f_{X_1,X_2}(h_1(\textbf{y}),h_2(\textbf{y}))|det(J)|$}\\
+    where $det(J)=\frac{\partial h_1(\textbf{y})}{\partial y_1}\frac{\partial h_2(\textbf{y})}{\partial y_2}-\frac{\partial h_2(\textbf{y})}{\partial y_1}\frac{\partial h_1(\textbf{y})}{\partial y_2}$
+    \item Order Statistics $(Y_1,...,Y_n)$\\
+    $X_i$ iid. Given the pdf of $\mathbf{X} = (X_1, X_2, \ldots, X_n)$ is $f_{\mathbf{X}}(x_1, x_2, \ldots, x_n) = \prod_{i=1}^n f_X(x_i)$, 
+    The pdf of $\mathbf{Y} = (Y_1, Y_2, \ldots, Y_n)$ is $f_{\mathbf{Y}}(y_1, y_2, \ldots, y_n) = n! \prod_{i=1}^n f_X(y_i)$.\\
+    CDF: $F_{Y_\alpha}(y) = P(Y_\alpha \leq y)$ 
+    $= P(\text{at least } \alpha \text{ } X_i\text{'s} \leq y)$ 
+    $= \sum_{j=\alpha}^n \binom{n}{j} [F_X(y)]^j [1 - F_X(y)]^{n-j}$\\
+    PDF: $f_{Y_\alpha}(y) = \frac{d}{dy} \left\{ \sum_{j=\alpha}^n \binom{n}{j} [F_X(y)]^j [1 - F_X(y)]^{n-j} \right\}
+    = \frac{n!}{(\alpha-1)!(n-\alpha)!} [F_X(y)]^{\alpha-1} [1 - F_X(y)]^{n-\alpha} f_X(y).$\\
+    $f_{Y_n}(y) = n [F_X(y)]^{n-1} f_X(y)$\\
+    $f_{Y_1}(y) = n [1 - F_X(y)]^{n-1} f_X(y)$\\
+\end{itemize}
+
+\section*{Chapter 7: Failure Time, Survival Function and Hazard Function}
+\begin{itemize}
+    \item Survival Function $S(t)$\\
+    Def: $S(t)=P(T>t)=1-F(t)$; for continuous $T$, this also equals $P(T\ge t)$\\
+    Property 1: $E[T]=\int_0^\infty S(u)du$\\
+    Property 2(RMST): $T^*=min(T,\tau)$, $E[T^*]=\int_0^\tau S(u)du$
+    \item Hazard Function $\lambda (t)$\\
+    Def: (1) If T discrete, $\lambda (t)=P(T=t|T\ge t)=\frac{f(t)}{S(t)}$\\
+    Cumulative hazard function $\Lambda(t) = \sum_{x_i \leq t} \lambda(x_i)$\\
+    (2) If T continuous, $\lambda(t) = \lim_{\Delta \to 0^+} \frac{\Pr(t \leq T < t + \Delta \mid T \geq t)}{\Delta}=\frac{f(t)}{S(t)}$\\
+    Cumulative hazard function $\Lambda (t)=\int_0^t \lambda (u)du$
+    \item \hl{Relationship among functions}\\
+    (1) $\lambda(t)=\frac{f(t)}{S(t)}$\\
+    (2) $\Lambda (t)=-logS(t)$, $S(t)=e^{-\Lambda (t)}=e^{-\int_0^t\lambda (u)du}$\\
+    ($\lambda_0(t) \geq \lambda_1(t) \text{ for all } t > 0 \Rightarrow S_0(t) \leq S_1(t) \text{ for all } t > 0.$)\\
+    (3) When T regular, $\Lambda(\infty) = \int_0^\infty \lambda(u) du = \infty$
+    \item Cure models\\
+    Cure model: If a disease has cure, assume $P(0\le T<\infty)=\gamma <1$, $P(T=\infty)=1-\gamma$, which implies that $\Lambda (\infty)<\infty$.\\
+    pdf: $f_T(t) = I(0 \leq t < \infty)\gamma f_{T_0}(t) + I(t = \infty)(1 - \gamma)$
+    \item Censoring\\
+    Def: Censoring variable C. T and C independent.\\ $Y=min(T,C)$. $\Delta =
+    \begin{cases}
+    1 & \text{if data is uncensored, } T < C \\
+    0 & \text{if data is censored, } T \geq C
+    \end{cases}$\\
+    Property: $S_Y(y)=S_T(y)S_C(y)\le S_T(y)$
+    \item Likelihood function on survival data\\
+    $\text{Let } S(t; \theta) = P(T_i \geq t), G(c) = P(C_i \geq c)$, $T_i \perp C_i$\\
+    $\text{Let } f(t; \theta) \text{ and } g(c) \text{ be the pdf of } T , C, \ G(c^+) = P(C_i > c).$
+    $\mathcal{L} = \prod_{i=1}^n \left\{ \left[f(y_i; \theta) G(y_i^+)\right]^{\delta_i} \left[g(y_i) S(y_i; \theta)\right]^{1-\delta_i} \right\}$\\
+    \hl{If G is nonparametric, $\mathcal{L} \propto \prod_{i=1}^n \left[f(y_i; \theta)^{\delta_i} S(y_i; \theta)^{1-\delta_i}\right]$\\}
+    Eg. $T\sim Exp(\theta)$, MLE of $\theta^{-1}$ is $\frac{\sum_{i=1}^ny_i}{\sum_{i=1}^n\delta_i}$
+    \item Two regression models\\
+    (1) Proportional Hazards model:\\ $\lambda(t; X_i) = \lambda_0(t)e^{\beta_1 X_{i1} + \beta_2 X_{i2} + \cdots + \beta_p X_{ip}} = \lambda_0(t)e^{\beta' X_i}$\\
+    $\lambda_0(t)$: baseline hazard at t.\\
+    (2) Accelerated Failure Time Model: $\log(T_i) = \beta_0 + \beta' X_i + \epsilon_i$
+
+
+\end{itemize}
+
+
+\section*{Chapter 8: Convergence of Random Variables}
+\begin{itemize}
+    \item Convergence in probability\\
+    Suppose that $X_1, X_2, \ldots$ is a sequence of random variables and let $c$ be a constant. $X_n \overset{P}{\to} c$ if  
+    $ \lim_{n \to \infty} P(|X_n - c| > \epsilon) = 0 $  
+    for all $\epsilon > 0$. \hl{Or 
+    $ \lim_{n \to \infty} P(|X_n - c| < \epsilon) = 1 $  
+    for all $\epsilon > 0$}. \\
+    Properties:\\ If $c, d$ are constants,\\
+    (1) If $X_n \overset{P}{\to} c$ and $Y_n \overset{P}{\to} d$, then $X_n + Y_n \overset{P}{\to} c + d$.\\  
+    (2) If $X_n \overset{P}{\to} c$ and $Y_n \overset{P}{\to} d$, then $X_n Y_n \overset{P}{\to} cd$. \\ 
+    (3) If $X_n \overset{P}{\to} c$ and $g(\cdot)$ is a continuous function, then $g(X_n) \overset{P}{\to} g(c)$.\\
+    Law of Large Numbers (LLN):\\ Suppose $X_1, \ldots, X_n$ are i.i.d. random variables with mean $\mu$ and finite variance $\sigma^2 < \infty$, then  
+    $ \overline{X}_n = \frac{1}{n} \sum_{i=1}^n X_i \overset{P}{\to} \mu $.
+    \item Convergence in Distribution\\
+    Suppose that $X_1, X_2, \ldots$ is a sequence of random variables and let $X$ denote a random variable. $X_n \overset{D}{\to} X$ if and only if  
+    \hl{$ F_{X_n}(t) \to F_X(t) $}  for all continuity points of $X$ \\
+    Properties:\\
+    Let $c, d$ be constants.\\  
+    (1) $X_n \overset{P}{\to} c$ if and only if $X_n \overset{D}{\to} c$.\\
+    (2) (Slutsky's Theorem) If $X_n \overset{D}{\to} X$, $Y_n \overset{P}{\to} c$, and $Z_n \overset{P}{\to} d$, then $Y_n X_n + Z_n \overset{D}{\to} cX + d$.\\
+    (3) If $X_n \overset{D}{\to} X$ and $g(\cdot)$ is a continuous function, then $g(X_n) \overset{D}{\to} g(X)$.
+    \item $o_p$ and $O_p$\\
+    $\{X_n\}$ is $o_p(1)$ if $X_n \overset{P}{\to} 0$.\\
+    $\{X_n\}$ is $O_p(1)$ if for every $\epsilon > 0$, there is always an $M > 0$ and an integer $N(\epsilon, M)$ so that $n > N(\epsilon, M)$ implies  
+    $ P(|X_n| < M) > 1 - \epsilon $.\\
+    Extensions:  \\
+    $\{X_n\}$ is $o_p(a_n)$ if $\frac{X_n}{a_n} \overset{P}{\to} 0$.\\
+    $\{X_n\}$ is $O_p(a_n)$ if the sequence $\left\{\frac{X_n}{a_n}\right\}$ is $O_p(1)$.\\
+    Properties:\\
+    1. If $X_n \overset{D}{\to} X$, then $\{X_n\}$ is $O_p(1)$.\\
+    2. $o_p(1) + o_p(1) = o_p(1)$ \\     
+    3. $o_p(1) + O_p(1) = O_p(1)$\\      
+    4. $o_p(1) O_p(1) = o_p(1)$  
+    \item Mean Squared Error (MSE)\\
+    $\mathrm{MSE}(\hat{\theta}_n) = E\left[(\hat{\theta}_n - \theta)^2\right]= \mathrm{Var}(\hat{\theta}_n) + \mathrm{Bias}(\hat{\theta}_n)^2$\\
+    Property. Let $\hat{\theta}_1, \hat{\theta}_2, \ldots$ be a sequence of point estimators of $\theta$. If $\lim_{n \to \infty} MSE(\hat{\theta}_n) = 0$ then $\hat{\theta}_n$ is a \hl{consistent estimator} of $\theta$ (that is, $\hat{\theta}_n$ converges in probability to $\theta$).
+    \item Central Limit Theorem\\
+    Suppose that $X_1, \ldots, X_n$ are i.i.d. random variables with mean $\mu$ and variance $\sigma^2 < \infty$, then  
+    $\sqrt{n} (\overline{X}_n - \mu) \overset{D}{\to} X \sim Normal(0, \sigma^2)$  
+    or      
+    $\sqrt{n} \left(\frac{\overline{X}_n - \mu}{\sigma}\right) \overset{D}{\to} Z \sim Normal(0, 1)$.
+    \item Delta Method\\
+    Suppose that $\sqrt{n}(Y_n - \mu) \overset{D}{\to} Normal(0, \sigma^2)$  
+    and $g(\cdot)$ is a continuously differentiable function so that $g'(\mu) \neq 0$, 
+    $\sqrt{n}(g(Y_n) - g(\mu)) \overset{D}{\to} Normal(0, g'(\mu)^2 \sigma^2)$.
+    
+    
+    
+
+
+
+\end{itemize}
+    
+
+\section*{Notes}
+\begin{itemize}
+    \item $\binom{n}{r-1}+\binom{n}{r}=\binom{n+1}{r}$
+\end{itemize}
+\end{multicols}
+
+\end{document}

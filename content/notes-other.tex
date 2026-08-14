@@ -1,0 +1,985 @@
+\documentclass[a4paper,10pt]{article}
+\usepackage{multicol}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{bm}
+\usepackage{soul}
+\usepackage{xcolor}
+\sethlcolor{cyan}
+\usepackage[margin=0.5in]{geometry}
+\usepackage{graphicx}
+\usepackage{times}
+\renewcommand{\baselinestretch}{0.9} 
+
+\title{Other Notes}
+\author{}
+\date{}
+
+\begin{document}
+
+\maketitle
+
+
+\section{Logistic Regression}
+
+Logistic regression is a generalized linear model used for binary outcomes.
+
+\subsection{Model}
+
+Let
+\[
+Y \in \{0,1\}, \quad X \in \mathbb{R}^p
+\]
+
+We model
+
+\[
+P(Y=1|X) = p(X)
+\]
+
+Instead of modeling the probability directly, logistic regression models the log-odds:
+
+\[
+\log \frac{P(Y=1|X)}{1-P(Y=1|X)}
+=
+\beta_0 + X^T\beta
+\]
+
+This is called the \textbf{logit link function}.
+
+\subsection{Logistic Function}
+
+Solving for the probability gives
+
+\[
+P(Y=1|X)
+=
+\frac{1}{1+\exp(-(\beta_0 + X^T\beta))}
+\]
+
+Let
+
+\[
+\eta = \beta_0 + X^T\beta
+\]
+
+then
+
+\[
+p(X) = \frac{e^\eta}{1+e^\eta}.
+\]
+
+\subsection{Likelihood}
+
+Assume independent observations
+
+\[
+(Y_i, X_i), \quad i=1,\dots,n
+\]
+
+with
+
+\[
+Y_i \sim \text{Bernoulli}(p_i)
+\]
+
+where
+
+\[
+p_i = P(Y_i=1|X_i).
+\]
+
+The likelihood is
+
+\[
+L(\beta)
+=
+\prod_{i=1}^n
+p_i^{Y_i}(1-p_i)^{1-Y_i}.
+\]
+
+\subsection{Log-Likelihood}
+
+\[
+\ell(\beta)
+=
+\sum_{i=1}^n
+\left[
+Y_i \log p_i
++
+(1-Y_i)\log(1-p_i)
+\right].
+\]
+
+Substituting the logistic form gives
+
+\[
+\ell(\beta)
+=
+\sum_{i=1}^n
+\left[
+Y_i X_i^T\beta
+-
+\log(1+\exp(X_i^T\beta))
+\right].
+\]
+
+\subsection{Estimation}
+
+Parameters are estimated using maximum likelihood estimation (MLE).  
+There is no closed-form solution, so numerical methods such as Newton–Raphson or IRLS are used.
+
+The score function is
+
+\[
+U(\beta)
+=
+\sum_{i=1}^n
+X_i(Y_i - p_i).
+\]
+
+The Fisher information matrix is
+
+\[
+I(\beta)
+=
+\sum_{i=1}^n
+p_i(1-p_i) X_i X_i^T.
+\]
+
+Asymptotically,
+
+\[
+\hat{\beta}
+\sim
+N(\beta, I(\beta)^{-1}).
+\]
+
+\subsection{Interpretation}
+
+Each coefficient represents a log-odds change:
+
+\[
+\beta_j
+=
+\log(\text{odds ratio})
+\]
+
+and
+
+\[
+\exp(\beta_j)
+\]
+
+is the multiplicative change in odds when $x_j$ increases by one unit.
+
+\subsection{Classification}
+
+Predicted probability:
+
+\[
+\hat p(X)
+\]
+
+Classification rule:
+
+\[
+\hat Y =
+\begin{cases}
+1 & \hat p(X) > c \\
+0 & \text{otherwise}
+\end{cases}
+\]
+
+where $c$ is a threshold (often $0.5$).
+
+\subsection{Regularization}
+
+To avoid overfitting:
+
+Ridge logistic regression:
+
+\[
+\ell(\beta) - \lambda \|\beta\|_2^2
+\]
+
+Lasso logistic regression:
+
+\[
+\ell(\beta) - \lambda \|\beta\|_1.
+\]
+
+\section{EM Algorithm for MLE with Missing Data}
+
+Suppose the complete data are
+\[
+X = (Y,Z)
+\]
+
+where
+
+\begin{itemize}
+\item $Y$ : observed data
+\item $Z$ : missing (latent) data
+\end{itemize}
+
+Assume the model
+
+\[
+p(Y,Z|\theta).
+\]
+
+\subsection{Observed Likelihood}
+
+The observed likelihood is
+
+\[
+L(\theta)
+=
+p(Y|\theta)
+=
+\sum_Z p(Y,Z|\theta)
+\]
+
+(or an integral if $Z$ is continuous).
+
+The log-likelihood is
+
+\[
+\ell(\theta)
+=
+\log p(Y|\theta)
+=
+\log \sum_Z p(Y,Z|\theta).
+\]
+
+This is often difficult to maximize directly.
+
+\subsection{EM Algorithm}
+
+The EM algorithm maximizes the likelihood iteratively.
+
+Define
+
+\[
+Q(\theta|\theta^{(t)})
+=
+E_{Z|Y,\theta^{(t)}}
+[
+\log p(Y,Z|\theta)
+].
+\]
+
+\subsection{Algorithm Steps}
+
+\textbf{E-step}
+
+\[
+Q(\theta|\theta^{(t)})
+=
+E_{Z|Y,\theta^{(t)}}[
+\log p(Y,Z|\theta)
+].
+\]
+
+Compute the expected complete-data log-likelihood.
+
+\textbf{M-step}
+
+\[
+\theta^{(t+1)}
+=
+\arg\max_\theta Q(\theta|\theta^{(t)}).
+\]
+
+Repeat until convergence.
+
+The EM algorithm guarantees
+
+\[
+\ell(\theta^{(t+1)}) \ge \ell(\theta^{(t)}).
+\]
+
+\subsection{Example: Gaussian Mixture Model}
+
+Assume
+
+\[
+Y_i \sim \pi N(\mu_1,\sigma^2) + (1-\pi)N(\mu_2,\sigma^2).
+\]
+
+Introduce latent variable
+
+\[
+Z_i =
+\begin{cases}
+1 & \text{component 1} \\
+0 & \text{component 2}.
+\end{cases}
+\]
+
+\subsection{E-step}
+
+Compute posterior probability
+
+\[
+\gamma_i
+=
+P(Z_i=1|Y_i,\theta^{(t)})
+=
+\frac{
+\pi^{(t)} f_1(Y_i)
+}{
+\pi^{(t)} f_1(Y_i) + (1-\pi^{(t)}) f_2(Y_i)
+}.
+\]
+
+\subsection{M-step}
+
+Update parameters
+
+\[
+\pi^{(t+1)}
+=
+\frac{1}{n}\sum_i \gamma_i.
+\]
+
+\[
+\mu_1^{(t+1)}
+=
+\frac{\sum_i \gamma_i Y_i}{\sum_i \gamma_i}.
+\]
+
+\[
+\mu_2^{(t+1)}
+=
+\frac{\sum_i (1-\gamma_i)Y_i}{\sum_i (1-\gamma_i)}.
+\]
+
+\[
+\sigma^2
+=
+\frac{
+\sum_i \gamma_i (Y_i-\mu_1)^2
++
+\sum_i (1-\gamma_i)(Y_i-\mu_2)^2
+}{n}.
+\]
+
+\section{Augmented Inverse Probability Weighting (AIPW) / Doubly Robust Estimation}
+
+\subsection{Setup}
+
+Let
+
+\begin{itemize}
+\item $A \in \{0,1\}$ : treatment
+\item $X$ : covariates
+\item $Y$ : observed outcome
+\end{itemize}
+
+Potential outcomes:
+
+\[
+Y(1), Y(0)
+\]
+
+Observed outcome:
+
+\[
+Y = AY(1) + (1-A)Y(0)
+\]
+
+The target estimand is the Average Treatment Effect (ATE)
+
+\[
+\tau = E[Y(1) - Y(0)].
+\]
+
+\subsection{Identification Assumptions}
+
+\textbf{Consistency}
+
+\[
+Y = Y(A)
+\]
+
+\textbf{Unconfoundedness}
+
+\[
+(Y(1),Y(0)) \perp A \mid X
+\]
+
+\textbf{Positivity}
+
+\[
+0 < P(A=1|X) < 1
+\]
+
+Under these assumptions
+
+\[
+\tau =
+E_X
+\left[
+E[Y|A=1,X] - E[Y|A=0,X]
+\right].
+\]
+
+\subsection{Outcome Regression}
+
+Define
+
+\[
+\mu_a(X) = E[Y|A=a,X].
+\]
+
+Estimator
+
+\[
+\hat\tau_{OR}
+=
+\frac{1}{n}
+\sum_i
+\left(
+\hat\mu_1(X_i) - \hat\mu_0(X_i)
+\right).
+\]
+
+\subsection{Inverse Probability Weighting}
+
+Define the propensity score
+
+\[
+e(X) = P(A=1|X).
+\]
+
+Estimator
+
+\[
+\hat\tau_{IPW}
+=
+\frac{1}{n}
+\sum_i
+\left(
+\frac{A_i Y_i}{\hat e(X_i)}
+-
+\frac{(1-A_i)Y_i}{1-\hat e(X_i)}
+\right).
+\]
+
+\subsection{Augmented IPW (Doubly Robust Estimator)}
+
+The AIPW estimator is
+
+\[
+\hat\tau_{DR}
+=
+\frac{1}{n}
+\sum_i
+\Bigg[
+\hat\mu_1(X_i) - \hat\mu_0(X_i)
++
+\frac{A_i}{\hat e(X_i)}(Y_i-\hat\mu_1(X_i))
+-
+\frac{1-A_i}{1-\hat e(X_i)}(Y_i-\hat\mu_0(X_i))
+\Bigg].
+\]
+
+\subsection{Double Robustness}
+
+The estimator is consistent if either
+
+\begin{itemize}
+\item the outcome model $\mu_a(X)$ is correctly specified, or
+\item the propensity score model $e(X)$ is correctly specified.
+\end{itemize}
+
+\subsection{Efficient Influence Function}
+
+The efficient influence function for the ATE is
+
+\[
+\phi(O)
+=
+\mu_1(X) - \mu_0(X)
++
+\frac{A}{e(X)}(Y-\mu_1(X))
+-
+\frac{1-A}{1-e(X)}(Y-\mu_0(X))
+-
+\tau.
+\]
+
+The AIPW estimator is obtained by solving
+
+\[
+\frac{1}{n}\sum_i \phi(O_i) = 0.
+\]
+
+\section{Kernel Regression}
+
+Kernel regression is a nonparametric method for estimating the regression function
+
+\[
+m(x)=E[Y\mid X=x].
+\]
+
+Suppose we observe
+
+\[
+(X_i,Y_i), \quad i=1,\dots,n.
+\]
+
+The main idea is to estimate $m(x)$ by taking a locally weighted average of the responses $Y_i$, where observations with $X_i$ close to $x$ receive larger weights.
+
+\subsection{Kernel Function}
+
+A kernel function $K(\cdot)$ is a nonnegative weighting function, usually symmetric and integrating to 1.
+
+Examples include:
+
+\paragraph{Gaussian kernel}
+\[
+K(u)=\frac{1}{\sqrt{2\pi}}e^{-u^2/2}
+\]
+
+\paragraph{Uniform kernel}
+\[
+K(u)=\frac{1}{2}\mathbf{1}(|u|\le 1)
+\]
+
+\paragraph{Epanechnikov kernel}
+\[
+K(u)=\frac{3}{4}(1-u^2)\mathbf{1}(|u|\le 1)
+\]
+
+\subsection{Bandwidth}
+
+The bandwidth $h>0$ controls the amount of smoothing.
+
+\begin{itemize}
+\item Small $h$: less smoothing, lower bias, higher variance
+\item Large $h$: more smoothing, higher bias, lower variance
+\end{itemize}
+
+\subsection{Nadaraya--Watson Estimator}
+
+The kernel regression estimator is
+
+\[
+\hat m(x)
+=
+\frac{\sum_{i=1}^n K\left(\frac{x-X_i}{h}\right)Y_i}
+{\sum_{i=1}^n K\left(\frac{x-X_i}{h}\right)}.
+\]
+
+Equivalently, define the weights
+
+\[
+w_i(x)=
+\frac{K\left(\frac{x-X_i}{h}\right)}
+{\sum_{j=1}^n K\left(\frac{x-X_j}{h}\right)},
+\]
+
+then
+
+\[
+\hat m(x)=\sum_{i=1}^n w_i(x)Y_i.
+\]
+
+Thus $\hat m(x)$ is a weighted average of the observed responses near $x$.
+
+\subsection{Local Constant Interpretation}
+
+Kernel regression can be viewed as a local constant fit. For a fixed target point $x$, consider
+
+\[
+\sum_{i=1}^n K\left(\frac{x-X_i}{h}\right)(Y_i-c)^2.
+\]
+
+The minimizer over $c$ is exactly the Nadaraya--Watson estimator.
+
+\subsection{Bias-Variance Tradeoff}
+
+Kernel regression has the usual bias-variance tradeoff:
+
+\begin{itemize}
+\item smaller bandwidth gives lower bias but higher variance
+\item larger bandwidth gives higher bias but lower variance
+\end{itemize}
+
+Under smoothness assumptions, in one dimension the bias is typically of order $h^2$ and the variance is of order $1/(nh)$.
+
+\subsection{Boundary Effect}
+
+Kernel regression often has larger bias near the boundary of the covariate range, because fewer observations are available on one side of the target point.
+
+\subsection{Extensions}
+
+For multivariate covariates $X\in\mathbb{R}^p$, kernel regression extends naturally, but suffers from the curse of dimensionality.
+
+A common improvement is local linear regression, which reduces boundary bias.
+
+\subsection{Summary}
+
+Kernel regression is a simple and important nonparametric regression method that estimates the conditional mean function by locally weighted averaging. Its performance depends strongly on the choice of bandwidth.
+
+\section{Linear Algebra}
+\subsection{Derivation}
+\[
+\begin{aligned}
+\frac{\partial}{\partial x}(a^T x) &= a \\
+\frac{\partial}{\partial x}(x^T A x) &= (A+A^T)x \\
+\frac{\partial}{\partial x}(x^T A x) &= 2Ax,\quad A=A^T \\
+\frac{\partial}{\partial x}\|Ax-b\|^2 &= 2A^T(Ax-b) \\
+\frac{\partial}{\partial x}(A+Bx)^T(A+Bx) &= 2B^T(A+Bx)
+\end{aligned}
+\] 
+\subsection{Covariance matrix}
+\[
+\mathrm{Cov}(aX)=a^2\Sigma
+\]
+
+\[
+\mathrm{Cov}(AX)=A\Sigma A^T
+\]
+
+\[
+\mathrm{Cov}(A+BX)=B\Sigma B^T
+\]
+
+\subsection{Trace}
+\[
+\operatorname{tr}(A)=\sum_i a_{ii}
+\]
+
+\[
+\operatorname{tr}(A+B)
+=
+\operatorname{tr}(A)+\operatorname{tr}(B)
+\]
+
+\[
+\operatorname{tr}(AB)=\operatorname{tr}(BA)
+\]
+
+\[
+\operatorname{tr}(ABC)
+=
+\operatorname{tr}(BCA)
+=
+\operatorname{tr}(CAB)
+\]
+
+\[
+\operatorname{tr}(P^{-1}AP)=\operatorname{tr}(A)
+\]
+
+\[
+\operatorname{tr}(A)=\sum_i \lambda_i
+\]
+
+\[
+\operatorname{tr}(A^k)=\sum_i \lambda_i^k
+\]
+
+\[
+\operatorname{tr}(A^T A)=\lVert A\rVert_F^2
+\]
+
+\[
+x^T A x=\operatorname{tr}(Axx^T)
+\]
+
+\[
+P^2=P
+\quad\Longrightarrow\quad
+\operatorname{tr}(P)=\operatorname{rank}(P)
+\]
+
+\[
+\operatorname{tr}(AB-BA)=0
+\]
+
+\[
+\det(e^A)=e^{\operatorname{tr}(A)}
+\]
+
+\section{Linear Regression: Important Concepts and Conclusions}
+
+\subsection{Model}
+
+For observations $i=1,\dots,n$, the linear regression model is
+
+\[
+Y_i = \beta_0 + \beta_1 X_{i1} + \cdots + \beta_p X_{ip} + \varepsilon_i.
+\]
+
+In matrix form,
+
+\[
+Y = X\beta + \varepsilon.
+\]
+
+Here $Y$ is the response vector, $X$ is the design matrix, $\beta$ is the coefficient vector, and $\varepsilon$ is the error vector.
+
+The model is called \emph{linear} because it is linear in the coefficients $\beta$.
+
+\subsection{Conditional Mean Interpretation}
+
+The regression model describes the conditional mean
+
+\[
+E[Y\mid X] = X\beta.
+\]
+
+In multiple regression, $\beta_j$ represents the change in the conditional mean of $Y$ associated with a one-unit increase in $X_j$, holding the other predictors fixed.
+
+\subsection{Ordinary Least Squares (OLS)}
+
+The ordinary least squares estimator minimizes the residual sum of squares
+
+\[
+RSS(\beta) = (Y-X\beta)^T(Y-X\beta).
+\]
+
+The OLS estimator is
+
+\[
+\hat\beta = (X^T X)^{-1}X^T Y,
+\]
+
+provided $X^TX$ is invertible.
+
+The normal equations are
+
+\[
+X^T(Y-X\hat\beta)=0.
+\]
+
+\subsection{Fitted Values and Residuals}
+
+The fitted values are
+
+\[
+\hat Y = X\hat\beta,
+\]
+
+and the residuals are
+
+\[
+e = Y-\hat Y.
+\]
+
+Define the hat matrix
+
+\[
+H = X(X^TX)^{-1}X^T.
+\]
+
+Then
+
+\[
+\hat Y = HY, \qquad e = (I-H)Y.
+\]
+
+Important facts:
+
+\begin{itemize}
+\item $H$ is symmetric and idempotent
+\item $\hat Y$ is the projection of $Y$ onto the column space of $X$
+\item residuals are orthogonal to the column space of $X$
+\end{itemize}
+
+\subsection{Assumptions}
+
+A key assumption is
+
+\[
+E[\varepsilon \mid X] = 0,
+\]
+
+which implies
+
+\[
+E[Y\mid X] = X\beta.
+\]
+
+A common variance assumption is
+
+\[
+\mathrm{Var}(\varepsilon \mid X)=\sigma^2 I.
+\]
+
+Sometimes we also assume normality:
+
+\[
+\varepsilon \mid X \sim N(0,\sigma^2 I).
+\]
+
+\subsection{Main Properties of OLS}
+
+If $E[\varepsilon\mid X]=0$, then OLS is unbiased:
+
+\[
+E[\hat\beta \mid X]=\beta.
+\]
+
+If in addition $\mathrm{Var}(\varepsilon\mid X)=\sigma^2 I$, then
+
+\[
+\mathrm{Var}(\hat\beta \mid X)=\sigma^2 (X^TX)^{-1}.
+\]
+
+Under these assumptions, OLS is the BLUE (Best Linear Unbiased Estimator), by the Gauss--Markov theorem.
+
+If we also assume normality, then
+
+\[
+\hat\beta \mid X \sim N\bigl(\beta,\sigma^2(X^TX)^{-1}\bigr).
+\]
+
+\subsection{Estimating the Error Variance}
+
+The residual sum of squares is
+
+\[
+RSS = \sum_{i=1}^n e_i^2.
+\]
+
+An unbiased estimator of $\sigma^2$ is
+
+\[
+\hat\sigma^2 = \frac{RSS}{n-p-1}.
+\]
+
+\subsection{Inference for Coefficients}
+
+The standard error of $\hat\beta_j$ is
+
+\[
+SE(\hat\beta_j)
+=
+\sqrt{\hat\sigma^2\bigl[(X^TX)^{-1}\bigr]_{jj}}.
+\]
+
+To test
+
+\[
+H_0:\beta_j=0,
+\]
+
+use the statistic
+
+\[
+t=\frac{\hat\beta_j}{SE(\hat\beta_j)},
+\]
+
+which follows a $t$ distribution with $n-p-1$ degrees of freedom under the normal model.
+
+A confidence interval is
+
+\[
+\hat\beta_j \pm t_{n-p-1,1-\alpha/2}SE(\hat\beta_j).
+\]
+
+\subsection{Overall Model Test}
+
+To test
+
+\[
+H_0:\beta_1=\cdots=\beta_p=0,
+\]
+
+use the $F$-statistic
+
+\[
+F=\frac{(SSR/p)}{(RSS/(n-p-1))}.
+\]
+
+\subsection{ANOVA Decomposition and $R^2$}
+
+The total variation decomposes as
+
+\[
+TSS = SSR + RSS.
+\]
+
+The coefficient of determination is
+
+\[
+R^2 = \frac{SSR}{TSS} = 1-\frac{RSS}{TSS}.
+\]
+
+Adjusted $R^2$ is
+
+\[
+R^2_{adj}
+=
+1-\frac{RSS/(n-p-1)}{TSS/(n-1)}.
+\]
+
+\subsection{Prediction}
+
+For a new covariate vector $x_0$, the predicted mean response is
+
+\[
+\hat Y_0 = x_0^T\hat\beta.
+\]
+
+A confidence interval for the mean response is narrower than a prediction interval for a new observation, because prediction intervals must also include the new noise term.
+
+\subsection{Important Practical Issues}
+
+\paragraph{Multicollinearity}
+Highly correlated predictors can make $(X^TX)^{-1}$ unstable, leading to large standard errors.
+
+\paragraph{Omitted Variable Bias}
+If an omitted variable is correlated with included predictors, then $E[\varepsilon\mid X]\neq 0$, and OLS becomes biased.
+
+\paragraph{Heteroscedasticity}
+If $\mathrm{Var}(\varepsilon\mid X)$ is not constant, OLS can still be unbiased, but the usual variance formula is incorrect.
+
+\paragraph{Influential Observations}
+Some observations may have unusually large influence on the fitted model, so diagnostic checks are important.
+
+\subsection{Summary}
+
+Linear regression is built around three core ideas:
+
+\begin{itemize}
+\item modeling the conditional mean: $E[Y\mid X]=X\beta$
+\item estimating coefficients by least squares: $\hat\beta=(X^TX)^{-1}X^TY$
+\item doing inference using assumptions on the error distribution
+\end{itemize}
+
+\section{Distribution}
+\subsection{Multinomial Distribution}
+$$
+(X_1,\dots,X_k)
+\sim
+\operatorname{Multinomial}(n;p_1,\dots,p_k)
+$$
+
+$$
+P(X_1=x_1,\dots,X_k=x_k)
+=
+\frac{n!}{\prod_i x_i!}
+\prod_i p_i^{x_i}
+$$
+
+$$
+E[X_i]=np_i
+$$
+
+$$
+\operatorname{Var}(X_i)=np_i(1-p_i),
+\qquad
+\operatorname{Cov}(X_i,X_j)=-np_ip_j
+$$
+
+$$
+\sum_{i=1}^k X_i=n
+$$
+\end{document}
