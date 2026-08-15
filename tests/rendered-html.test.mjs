@@ -28,11 +28,13 @@ test("renders the finished Stat Atlas shell and social metadata", async () => {
   assert.match(html, />Statistics Library</i);
   assert.match(html, />Common Distributions</i);
   assert.match(html, />Regression Models</i);
+  assert.match(html, />Expectation–Maximization \(EM\)</i);
   assert.match(html, /property="og:image"/i);
   assert.match(html, /https:\/\/stat-atlas\.test\/og\.png/i);
   assert.match(html, /name="twitter:card" content="summary_large_image"/i);
   assert.doesNotMatch(html, /codex-preview|SkeletonPreview|Your site is taking shape|Starter Project/i);
   assert.doesNotMatch(html, /topic-card|evolving library|mindmap source|living notes/i);
+  assert.doesNotMatch(html, />Search</i);
   await access(new URL("../public/og.png", import.meta.url));
 });
 
@@ -63,4 +65,12 @@ test("keeps every canonical note synchronized with the deployable content layer"
   assert.match(data, /title:\s*"Linear Regression: Important Concepts and Conclusions"/);
   assert.match(data, /title:\s*"Logistic Regression"/);
   assert.match(data, /title:\s*"Kernel Regression"/);
+  assert.match(data, /rename:\s*"Linear Regression",\s*hideSubsections:\s*true/);
+  assert.match(data, /rename:\s*"Expectation–Maximization",\s*hideSubsections:\s*true/);
+
+  const interfaceSource = await readFile(new URL("../app/stats-library.tsx", import.meta.url), "utf8");
+  const stylesheet = await readFile(new URL("../app/globals.css", import.meta.url), "utf8");
+  assert.doesNotMatch(interfaceSource, /searchOpen|search-trigger|Search library/);
+  assert.match(stylesheet, /--paper:\s*#080808/);
+  assert.match(stylesheet, /font-size:\s*14px/);
 });

@@ -68,6 +68,8 @@ export function plainText(raw: string) {
     .replace(/[{}$&#^_~]/g, " ")
     .replace(/^#+/gm, "")
     .replace(/^\s*-\s*/gm, " ")
+    .replace(/\b(Definition|Def\.?|Theorem|Lemma|Proposition|Corollary)\s+\d+(?:\.\d+)+\.?/gi, "$1")
+    .replace(/\bDef\.?\s*:/gi, "Definition:")
     .replace(/\s+/g, " ")
     .trim();
 }
@@ -119,7 +121,10 @@ function cleanChapterTitle(title: string) {
 }
 
 function expandTexSection(top: TexTopSection, selector: SectionSelector): LibrarySection[] {
-  const body = filterItems(top.body, selector);
+  const filteredBody = filterItems(top.body, selector);
+  const body = selector.hideSubsections
+    ? filteredBody.replace(/\\subsection\*?\{[^}]*\}/g, "")
+    : filteredBody;
   const title = selector.rename ?? cleanChapterTitle(top.title);
   if (!selector.expandSubsections) {
     return [{ id: slugify(`${selector.group ?? ""}-${title}`), title, body, format: "tex", group: selector.group }];
@@ -134,7 +139,12 @@ function expandTexSection(top: TexTopSection, selector: SectionSelector): Librar
   const intro = body.slice(0, matches[0].index).trim();
   if (plainText(intro)) sections.push({ id: slugify(`${group}-overview`), title: "Overview", body: intro, format: "tex", group });
   matches.forEach((match, index) => {
-    const subsectionTitle = plainText(match[1]);
+    const rawSubsectionTitle = plainText(match[1]);
+    const subsectionTitle = ({
+      "Derivation": "Matrix Derivatives",
+      "Covariance matrix": "Covariance Matrices",
+      "Trace": "Trace Identities",
+    } as Record<string, string>)[rawSubsectionTitle] ?? rawSubsectionTitle;
     sections.push({
       id: slugify(`${group}-${subsectionTitle}`),
       title: subsectionTitle,
@@ -176,9 +186,14 @@ function markdownPartSections(part: TopicPart): LibrarySection[] {
   return matches.map((match, index) => {
     const originalTitle = plainText(match[1]);
     const isReference = originalTitle.startsWith("Reference:");
+    const publicTitle = ({
+      "Setup": "Core Concepts",
+      "modeling and estimation": "Models, Estimation & Tests",
+      "Basic Conformal Prediction": "Core Methods",
+    } as Record<string, string>)[originalTitle] ?? originalTitle;
     return {
-      id: slugify(isReference ? "reference" : originalTitle),
-      title: isReference ? "Reference" : originalTitle,
+      id: slugify(isReference ? "references" : publicTitle),
+      title: isReference ? "References" : publicTitle,
       body: `${isReference ? originalTitle.replace(/^Reference:\s*/, "") : ""}\n${raw.slice((match.index ?? 0) + match[0].length, matches[index + 1]?.index ?? raw.length)}`.trim(),
       format: "markdown" as const,
     };
@@ -186,7 +201,14 @@ function markdownPartSections(part: TopicPart): LibrarySection[] {
 }
 
 export function parseTopic(topic: TopicSource) {
-  return uniqueSectionIds(topic.parts.flatMap((part) => part.format === "markdown" ? markdownPartSections(part) : texPartSections(part)));
+  const sections = uniqueSectionIds(topic.parts.flatMap((part) => part.format === "markdown" ? markdownPartSections(part) : texPartSections(part)));
+  if (!topic.combineSections || !sections.length) return sections;
+  return [{
+    id: slugify(topic.combineSections),
+    title: topic.combineSections,
+    body: sections.map((section) => section.body).join("\n"),
+    format: sections[0].format,
+  }];
 }
 
 type RichToken = { type: "text" | "math"; value: string; display?: boolean };
@@ -266,6 +288,9 @@ function cleanTextSegment(input: string) {
     .replace(/\\([A-Za-z]+)\b/g, "$1")
     .replace(/[{}]/g, "")
     .replace(/~+/g, " ")
+    .replace(/\b(Definition|Def\.?|Theorem|Lemma|Proposition|Corollary)\s+\d+(?:\.\d+)+\.?/gi, "$1")
+    .replace(/\bDef\.?\s*:/gi, "Definition:")
+    .replace(/\bEg\.?\s*:/gi, "Example:")
     .replace(/[ \t]+/g, " ")
     .replace(/\n\s+/g, "\n")
     .trim();
@@ -364,7 +389,7 @@ export function MarkdownBody({ body }: { body: string }) {
     if (heading) {
       flushParagraph();
       flushList();
-      blocks.push(<h3 className={`md-heading level-${heading[1].length}`} key={`h-${blocks.length}`}>{heading[2]}</h3>);
+      blocks.push(<h3 className={`md-heading level-${heading[1].length}`} key={`h-${blocks.length}`}>{editorialHeading(heading[2])}</h3>);
     } else if (bullet) {
       flushParagraph();
       list.push({ text: bullet[2], indent: Math.floor(bullet[1].length / 2) });
@@ -380,4 +405,40 @@ export function MarkdownBody({ body }: { body: string }) {
   flushParagraph();
   flushList();
   return <div className="markdown-body">{blocks}</div>;
+}
+
+const headingAliases: Record<string, string> = {
+  "Set up": "Setup",
+  "Survival time": "Survival Time",
+  "Functions": "Survival & Hazard Functions",
+  "Right censoring": "Right Censoring",
+  "Other types": "Other Censoring Types",
+  "modeling": "Model Specification",
+  "estimation": "Estimation",
+  "one-sample": "One-Sample Methods",
+  "parametric": "Parametric Models",
+  "non-parametric": "Nonparametric Estimation",
+  "Empirical survival (complete data)": "Empirical Survival (Complete Data)",
+  "regression (with covariates X)": "Regression Models",
+  "hypothesis testing (two-sample)": "Two-Sample Tests",
+  "Complete survival time": "Complete Event Times",
+  "Right-censored data: pointwise test": "Pointwise Tests with Right Censoring",
+  "Generalized / weighted log-rank tests": "Weighted Log-Rank Tests",
+  "Full conformal prediction": "Full Conformal Prediction",
+  "Split conformal prediction": "Split Conformal Prediction",
+  "Important statistical properties": "Statistical Properties",
+  "CP as a permutation test": "Conformal Prediction as a Permutation Test",
+  "Conditional Coverage": "Conditional Coverage",
+  "Asymptotic guarantees": "Asymptotic Guarantees",
+  "Randomization": "Randomization",
+  "Universality of CP": "Universality",
+  "CV methods": "Cross-Validation Methods",
+  "Weighted conformal": "Weighted Conformal Prediction",
+  "Online conformal": "Online Conformal Prediction",
+  "Conformal risk control": "Conformal Risk Control",
+  "Conformal sets aggregation": "Conformal Set Aggregation",
+};
+
+function editorialHeading(title: string) {
+  return headingAliases[title.trim()] ?? title.trim();
 }

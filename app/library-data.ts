@@ -15,6 +15,7 @@ export type SectionSelector = {
   rename?: string;
   group?: string;
   expandSubsections?: boolean;
+  hideSubsections?: boolean;
   includeItems?: string[];
   excludeItems?: string[];
 };
@@ -30,6 +31,7 @@ export type TopicSource = {
   title: string;
   collection: CollectionId;
   parts: TopicPart[];
+  combineSections?: string;
 };
 
 export const collections = [
@@ -45,7 +47,14 @@ export const topics: TopicSource[] = [
     title: "Real Analysis",
     collection: "foundations",
     parts: [
-      { format: "tex", raw: analysis },
+      { format: "tex", raw: analysis, selectors: [
+        { title: "Set Theory", rename: "Sets & Relations" },
+        { title: "Real Numbers", rename: "The Real Number System" },
+        { title: "Sequences and Series", rename: "Sequences & Series" },
+        { title: "Continuous Functions", rename: "Continuity" },
+        { title: "Derivative", rename: "Differentiation" },
+        { title: "Riemann Integral", rename: "Riemann Integration" },
+      ] },
       { format: "tex", raw: methods, selectors: [{ title: "Notes", rename: "Calculus, Series & Special Functions" }] },
     ],
   },
@@ -68,23 +77,23 @@ export const topics: TopicSource[] = [
         format: "tex",
         raw: probability,
         selectors: [
-          { title: "Chapter 1: Introduction to Probability" },
-          { title: "Chapter 2: Conditional Probability and Independence" },
+          { title: "Chapter 1: Introduction to Probability", rename: "Probability Spaces & Events" },
+          { title: "Chapter 2: Conditional Probability and Independence", rename: "Conditioning & Independence" },
           { title: "Chapter 3: Random variables and Probability Distributions", rename: "Random Variables", excludeItems: ["Examples of distribution"] },
           { title: "Chapter 4: Bivariate and Multivariate Distributions", rename: "Multivariate Random Variables" },
-          { title: "Chapter 5: Expectation and Moments" },
-          { title: "Chapter 6: Transformation of Random Variables" },
-          { title: "Chapter 8: Convergence of Random Variables" },
-          { title: "Notes" },
+          { title: "Chapter 5: Expectation and Moments", rename: "Expectation & Moments" },
+          { title: "Chapter 6: Transformation of Random Variables", rename: "Transformations of Random Variables" },
+          { title: "Chapter 8: Convergence of Random Variables", rename: "Modes of Convergence" },
+          { title: "Notes", rename: "Combinatorial Identity" },
         ],
       },
       {
         format: "tex",
         raw: methods,
         selectors: [
-          { title: "Set and Probability", rename: "Set & Probability Rules" },
-          { title: "Random variables/vectors", rename: "Random Variables & Vectors — Quick Reference", excludeItems: ["Survival Function", "Hazard Function"] },
-          { title: "Expectation", rename: "Expectation — Quick Reference" },
+          { title: "Set and Probability", rename: "Core Probability Identities" },
+          { title: "Random variables/vectors", rename: "Densities, Quantiles & Joint Laws", excludeItems: ["Survival Function", "Hazard Function"] },
+          { title: "Expectation", rename: "Expectation Rules" },
           { title: "Variance \\& Covariance", rename: "Variance & Covariance" },
           { title: "Independence", rename: "Independence Criteria" },
           { title: "Condition", rename: "Conditioning Identities" },
@@ -97,10 +106,11 @@ export const topics: TopicSource[] = [
     title: "Common Distributions",
     collection: "foundations",
     parts: [
-      { format: "tex", raw: methods, selectors: [{ title: "Distribution Examples", rename: "Discrete and Continuous Families" }] },
-      { format: "tex", raw: probability, selectors: [{ title: "Chapter 3: Random variables and Probability Distributions", rename: "Additional Distribution Notes", includeItems: ["Examples of distribution"] }] },
-      { format: "tex", raw: other, selectors: [{ title: "Distribution", expandSubsections: true }] },
+      { format: "tex", raw: methods, selectors: [{ title: "Distribution Examples", rename: "Distribution Reference" }] },
+      { format: "tex", raw: probability, selectors: [{ title: "Chapter 3: Random variables and Probability Distributions", rename: "Distribution Reference", includeItems: ["Examples of distribution"] }] },
+      { format: "tex", raw: other, selectors: [{ title: "Distribution", rename: "Distribution Reference", hideSubsections: true }] },
     ],
+    combineSections: "Distribution Reference",
   },
   {
     id: "estimation",
@@ -122,7 +132,7 @@ export const topics: TopicSource[] = [
   },
   {
     id: "testing",
-    title: "Confidence Intervals & Tests",
+    title: "Confidence Intervals & Hypothesis Tests",
     collection: "inference",
     parts: [{
       format: "tex",
@@ -142,30 +152,30 @@ export const topics: TopicSource[] = [
       format: "tex",
       raw: other,
       selectors: [
-        { title: "Linear Regression: Important Concepts and Conclusions", group: "Linear Regression", expandSubsections: true },
-        { title: "Logistic Regression", group: "Logistic Regression", expandSubsections: true },
-        { title: "Kernel Regression", group: "Kernel Regression", expandSubsections: true },
+        { title: "Linear Regression: Important Concepts and Conclusions", rename: "Linear Regression", hideSubsections: true },
+        { title: "Logistic Regression", rename: "Logistic Regression", hideSubsections: true },
+        { title: "Kernel Regression", rename: "Kernel Regression", hideSubsections: true },
       ],
     }],
   },
   {
     id: "em-algorithm",
-    title: "EM Algorithm & Latent Data",
+    title: "Expectation–Maximization (EM)",
     collection: "models",
     parts: [{
       format: "tex",
       raw: other,
-      selectors: [{ title: "EM Algorithm for MLE with Missing Data", expandSubsections: true }],
+      selectors: [{ title: "EM Algorithm for MLE with Missing Data", rename: "Expectation–Maximization", hideSubsections: true }],
     }],
   },
   {
     id: "causal-inference",
-    title: "Causal Inference: AIPW",
+    title: "AIPW & Doubly Robust Estimation",
     collection: "models",
     parts: [{
       format: "tex",
       raw: other,
-      selectors: [{ title: "Augmented Inverse Probability Weighting (AIPW) / Doubly Robust Estimation", expandSubsections: true }],
+      selectors: [{ title: "Augmented Inverse Probability Weighting (AIPW) / Doubly Robust Estimation", rename: "AIPW & Doubly Robust Estimation", hideSubsections: true }],
     }],
   },
   {
