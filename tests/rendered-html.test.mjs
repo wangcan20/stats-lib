@@ -72,5 +72,8 @@ test("keeps every canonical note synchronized with the deployable content layer"
   const stylesheet = await readFile(new URL("../app/globals.css", import.meta.url), "utf8");
   assert.doesNotMatch(interfaceSource, /searchOpen|search-trigger|Search library/);
   assert.match(stylesheet, /--paper:\s*#080808/);
-  assert.match(stylesheet, /font-size:\s*14px/);
+  assert.match(stylesheet, /body\s*\{[^}]*font-size:\s*16px/);
+  assert.match(stylesheet, /\.math-inline\s*\{[^}]*vertical-align:\s*baseline/);
+  assert.doesNotMatch(stylesheet, /\.math-inline\s*\{[^}]*vertical-align:\s*-/);
+  assert.match(stylesheet, /\.math-table \.katex\s*\{\s*font-size:\s*1\.16em/);
 });

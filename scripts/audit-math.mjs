@@ -18,6 +18,15 @@ function formulas(input) {
   const found = [];
   let cursor = 0;
   while (cursor < input.length) {
+    if (input.startsWith("\\begin{tabular}", cursor)) {
+      const close = "\\end{tabular}";
+      const end = input.indexOf(close, cursor + 15);
+      if (end >= 0) {
+        found.push({ value: input.slice(cursor, end + close.length), start: cursor });
+        cursor = end + close.length;
+        continue;
+      }
+    }
     let open = "";
     let close = "";
     if (input.startsWith("$$", cursor) && !escapedAt(input, cursor)) open = close = "$$";
@@ -44,7 +53,7 @@ function sanitize(formula) {
     .replace(/\\setlength\{\\tabcolsep\}\{[^}]*\}/g, "")
     .replace(/\\text\{\\small\s*/g, "")
     .replace(/\\begin\{tabular\}/g, "\\begin{array}")
-    .replace(/\\end\{tabular\}\s*\}/g, "\\end{array}")
+    .replace(/\\end\{tabular\}\s*\}?/g, "\\end{array}")
     .replace(/\$/g, "");
 }
 for (const file of files) {

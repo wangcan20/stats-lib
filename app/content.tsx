@@ -211,7 +211,7 @@ export function parseTopic(topic: TopicSource) {
   }];
 }
 
-type RichToken = { type: "text" | "math"; value: string; display?: boolean };
+type RichToken = { type: "text" | "math"; value: string; display?: boolean; table?: boolean };
 
 function escapedAt(input: string, index: number) {
   let slashes = 0;
@@ -234,6 +234,18 @@ export function tokenizeRichText(input: string): RichToken[] {
   };
 
   while (cursor < input.length) {
+    if (input.startsWith("\\begin{tabular}", cursor)) {
+      const tableClose = "\\end{tabular}";
+      const closing = input.indexOf(tableClose, cursor + 15);
+      if (closing >= 0) {
+        pushText(cursor);
+        const end = closing + tableClose.length;
+        tokens.push({ type: "math", value: input.slice(cursor, end), display: true, table: true });
+        cursor = end;
+        textStart = cursor;
+        continue;
+      }
+    }
     let open = "";
     let close = "";
     let display = false;
@@ -262,12 +274,22 @@ export function tokenizeRichText(input: string): RichToken[] {
     }
     pushText(cursor);
     const value = input.slice(cursor + open.length, closing);
-    tokens.push({ type: "math", value, display: display || value.includes("\n") });
+    const table = /\\begin\{(?:tabular|array)\}/.test(value);
+    tokens.push({ type: "math", value, display: display || value.includes("\n") || shouldDisplayFormula(value), table });
     cursor = closing + close.length;
     textStart = cursor;
   }
   pushText(input.length);
   return tokens;
+}
+
+function shouldDisplayFormula(formula: string) {
+  const compact = formula.replace(/\s+/g, " ").trim();
+  const fractions = compact.match(/\\(?:d?frac)\b/g)?.length ?? 0;
+  return compact.length >= 105
+    || /\\begin\{(?:aligned|cases|array|matrix|pmatrix|bmatrix)\}/.test(compact)
+    || fractions >= 2
+    || (compact.length >= 72 && /\\(?:sum|prod|int|lim)\b/.test(compact));
 }
 
 function cleanTextSegment(input: string) {
@@ -303,7 +325,7 @@ function sanitizeFormula(formula: string) {
     .replace(/\\setlength\{\\tabcolsep\}\{[^}]*\}/g, "")
     .replace(/\\text\{\\small\s*/g, "")
     .replace(/\\begin\{tabular\}/g, "\\begin{array}")
-    .replace(/\\end\{tabular\}\s*\}/g, "\\end{array}")
+    .replace(/\\end\{tabular\}\s*\}?/g, "\\end{array}")
     .replace(/\$/g, "");
 }
 
@@ -324,7 +346,8 @@ export function RichText({ raw }: { raw: string }) {
       {tokens.map((token, index) => {
         if (token.type === "math") {
           const html = renderFormulaHtml(token.value, Boolean(token.display));
-          return <span key={index} className={token.display ? "math-display" : "math-inline"} dangerouslySetInnerHTML={{ __html: html }} />;
+          const className = token.display ? `math-display${token.table ? " math-table" : ""}` : "math-inline";
+          return <span key={index} className={className} dangerouslySetInnerHTML={{ __html: html }} />;
         }
         const cleaned = cleanTextSegment(token.value);
         const lines = cleaned.split("\n");
