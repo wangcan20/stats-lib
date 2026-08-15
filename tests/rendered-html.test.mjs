@@ -76,4 +76,11 @@ test("keeps every canonical note synchronized with the deployable content layer"
   assert.match(stylesheet, /\.math-inline\s*\{[^}]*vertical-align:\s*baseline/);
   assert.doesNotMatch(stylesheet, /\.math-inline\s*\{[^}]*vertical-align:\s*-/);
   assert.match(stylesheet, /\.math-table \.katex\s*\{\s*font-size:\s*1\.16em/);
+  assert.match(interfaceSource, /<details id=\{section\.id\} open/);
+  assert.match(interfaceSource, />Expand all<\/button>/);
+  assert.match(interfaceSource, />Collapse all<\/button>/);
+  assert.match(stylesheet, /\.library-section:not\(\[open\]\)/);
+
+  const contentParser = await readFile(new URL("../app/content.tsx", import.meta.url), "utf8");
+  assert.match(contentParser, /<details open className=\{`md-fold/);
 });

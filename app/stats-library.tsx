@@ -18,6 +18,12 @@ export function StatsLibrary() {
   const sections = activeTopic ? parsed.get(activeTopic.id) ?? [] : [];
   const collection = activeTopic ? collections.find((item) => item.id === activeTopic.collection) : null;
 
+  const setAllSections = (open: boolean) => {
+    document.querySelectorAll<HTMLDetailsElement>(".reader-main details").forEach((detail) => {
+      detail.open = open;
+    });
+  };
+
   const navigate = (topicId: string | null, sectionId?: string) => {
     setActiveTopicId(topicId);
     setNavOpen(false);
@@ -66,12 +72,13 @@ export function StatsLibrary() {
       <main className="reader-main">
         <nav className="breadcrumbs" aria-label="Breadcrumb"><button onClick={() => navigate(null)}>Catalog</button><span>/</span><span>{collection?.title}</span></nav>
         <header className="topic-header"><h1>{activeTopic.title}</h1></header>
-        <div className="section-stack">{sections.map((section) => <section id={section.id} className={`library-section ${sections.length === 1 ? "without-title" : ""}`} key={section.id}>
-          {sections.length > 1 ? <h2>{section.title}</h2> : null}
-          {section.format === "markdown" ? <MarkdownBody body={section.body} /> : <TexBody body={section.body} />}
-        </section>)}</div>
+        <div className="fold-controls" aria-label="Section display controls"><button onClick={() => setAllSections(true)}>Expand all</button><span>/</span><button onClick={() => setAllSections(false)}>Collapse all</button></div>
+        <div className="section-stack">{sections.map((section) => <details id={section.id} open className={`library-section ${sections.length === 1 ? "without-title" : ""}`} key={section.id}>
+          <summary className="section-summary"><span role="heading" aria-level={2}>{sections.length > 1 ? section.title : "Contents"}</span></summary>
+          <div className="section-body">{section.format === "markdown" ? <MarkdownBody body={section.body} /> : <TexBody body={section.body} />}</div>
+        </details>)}</div>
       </main>
-      {sections.length > 1 ? <aside className="outline-panel"><div className="outline-title">On this page</div><nav>{sections.map((section) => <a key={section.id} className={activeSection === section.id ? "active" : ""} href={`#${section.id}`}>{section.title}</a>)}</nav></aside> : null}
+      {sections.length > 1 ? <aside className="outline-panel"><div className="outline-title">On this page</div><nav>{sections.map((section) => <a key={section.id} className={activeSection === section.id ? "active" : ""} href={`#${section.id}`} onClick={() => document.getElementById(section.id)?.setAttribute("open", "")}>{section.title}</a>)}</nav></aside> : null}
     </div>}
   </div>;
 }

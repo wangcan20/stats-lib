@@ -385,12 +385,13 @@ export function TexBody({ body }: { body: string }) {
   );
 }
 
-type MdNode = { text: string; indent: number };
+type MdListNode = { text: string; indent: number };
+type MdFoldNode = { title: string; level: number; lines: string[]; children: MdFoldNode[] };
 
-export function MarkdownBody({ body }: { body: string }) {
+function MarkdownChunk({ body }: { body: string }) {
   const lines = body.split("\n");
   const blocks: React.ReactNode[] = [];
-  let list: MdNode[] = [];
+  let list: MdListNode[] = [];
   let paragraph: string[] = [];
   const flushParagraph = () => {
     if (!paragraph.length) return;
@@ -407,13 +408,8 @@ export function MarkdownBody({ body }: { body: string }) {
   };
 
   lines.forEach((line) => {
-    const heading = line.match(/^(#{2,4})\s+(.+)/);
     const bullet = line.match(/^(\s*)-\s*(.*)/);
-    if (heading) {
-      flushParagraph();
-      flushList();
-      blocks.push(<h3 className={`md-heading level-${heading[1].length}`} key={`h-${blocks.length}`}>{editorialHeading(heading[2])}</h3>);
-    } else if (bullet) {
+    if (bullet) {
       flushParagraph();
       list.push({ text: bullet[2], indent: Math.floor(bullet[1].length / 2) });
     } else if (list.length && line.trim()) {
@@ -428,6 +424,38 @@ export function MarkdownBody({ body }: { body: string }) {
   flushParagraph();
   flushList();
   return <div className="markdown-body">{blocks}</div>;
+}
+
+export function MarkdownBody({ body }: { body: string }) {
+  const root: MdFoldNode = { title: "", level: 1, lines: [], children: [] };
+  const stack = [root];
+  body.split("\n").forEach((line) => {
+    const heading = line.match(/^(#{2,4})\s+(.+)/);
+    if (!heading) {
+      stack[stack.length - 1].lines.push(line);
+      return;
+    }
+    const level = heading[1].length;
+    while (stack.length > 1 && stack[stack.length - 1].level >= level) stack.pop();
+    const node: MdFoldNode = { title: editorialHeading(heading[2]), level, lines: [], children: [] };
+    stack[stack.length - 1].children.push(node);
+    stack.push(node);
+  });
+
+  return <div className="markdown-folds">
+    {root.lines.some((line) => line.trim()) ? <MarkdownChunk body={root.lines.join("\n")} /> : null}
+    {root.children.map((node, index) => <MarkdownFold key={`${node.level}-${node.title}-${index}`} node={node} />)}
+  </div>;
+}
+
+function MarkdownFold({ node }: { node: MdFoldNode }) {
+  return <details open className={`md-fold level-${node.level}`}>
+    <summary><span className="md-fold-title" role="heading" aria-level={Math.min(node.level + 1, 6)}>{node.title}</span></summary>
+    <div className="md-fold-body">
+      {node.lines.some((line) => line.trim()) ? <MarkdownChunk body={node.lines.join("\n")} /> : null}
+      {node.children.map((child, index) => <MarkdownFold key={`${child.level}-${child.title}-${index}`} node={child} />)}
+    </div>
+  </details>;
 }
 
 const headingAliases: Record<string, string> = {
