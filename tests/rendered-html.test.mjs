@@ -19,22 +19,29 @@ async function render() {
   );
 }
 
-test("renders the finished Stat Atlas shell and social metadata", async () => {
+test("renders the refactored library taxonomy and social metadata", async () => {
   const response = await render();
   assert.equal(response.status, 200);
   assert.match(response.headers.get("content-type") ?? "", /^text\/html\b/i);
   const html = await response.text();
   assert.match(html, /<title>Stat Atlas — Statistics Library<\/title>/i);
   assert.match(html, />Statistics Library</i);
+  assert.match(html, />Mathematical Foundations</i);
+  assert.match(html, />Statistical Inference</i);
+  assert.match(html, />Statistical Models</i);
+  assert.match(html, />Semiparametric &amp; Causal Inference</i);
+  assert.match(html, />Computational Statistics</i);
+  assert.match(html, />Specialized Topics</i);
   assert.match(html, />Common Distributions</i);
   assert.match(html, />Regression Models</i);
-  assert.match(html, />Expectation–Maximization \(EM\)</i);
+  assert.match(html, />Expectation–Maximization</i);
+  assert.match(html, />Recently updated</i);
+  assert.match(html, />Search\s*</i);
   assert.match(html, /property="og:image"/i);
   assert.match(html, /https:\/\/stat-atlas\.test\/og\.png/i);
   assert.match(html, /name="twitter:card" content="summary_large_image"/i);
   assert.doesNotMatch(html, /codex-preview|SkeletonPreview|Your site is taking shape|Starter Project/i);
   assert.doesNotMatch(html, /topic-card|evolving library|mindmap source|living notes/i);
-  assert.doesNotMatch(html, />Search</i);
   await access(new URL("../public/og.png", import.meta.url));
 });
 
@@ -57,20 +64,29 @@ test("keeps every canonical note synchronized with the deployable content layer"
   }
 
   const data = await readFile(new URL("../app/library-data.ts", import.meta.url), "utf8");
-  assert.equal((data.match(/\bid:\s*"[^"]+"/g) ?? []).length >= 12, true);
+  assert.equal((data.match(/\bpage\(\{ id:\s*"[^"]+"/g) ?? []).length >= 30, true);
   assert.match(data, /id:\s*"conformal-prediction"/);
   assert.match(data, /id:\s*"survival-analysis"/);
-  assert.match(data, /id:\s*"distributions"/);
-  assert.match(data, /title:\s*"Linear Algebra"/);
-  assert.match(data, /title:\s*"Linear Regression: Important Concepts and Conclusions"/);
-  assert.match(data, /title:\s*"Logistic Regression"/);
-  assert.match(data, /title:\s*"Kernel Regression"/);
-  assert.match(data, /rename:\s*"Linear Regression",\s*hideSubsections:\s*true/);
-  assert.match(data, /rename:\s*"Expectation–Maximization",\s*hideSubsections:\s*true/);
+  assert.match(data, /id:\s*"common-distributions"/);
+  assert.match(data, /type PageType = "Concept" \| "Derivation" \| "Formula Sheet" \| "Example" \| "Algorithm" \| "Reference"/);
+  assert.match(data, /type Maturity = "Stub" \| "Notes" \| "Developed" \| "Reference"/);
+  assert.match(data, /tags:\s*string\[\]/);
+  assert.match(data, /related\?:\s*string\[\]/);
+  assert.match(data, /id: "aipw"[^\n]+collection: "semiparametric-causal"[^\n]+group: "doubly-robust"/);
+  assert.match(data, /id: "em-algorithm"[^\n]+collection: "computational-statistics"[^\n]+group: "em"/);
+  assert.match(data, /id: "categorical-data"[^\n]+title: "Categorical Data"/);
+  assert.match(data, /id: "study-design"[^\n]+title: "Study Design"/);
+  assert.match(data, /id: "resampling"[^\n]+title: "Resampling"/);
+  assert.doesNotMatch(data, /related:\s*\[[^\]]*"(?:covariance-matrices|monte-carlo-integration|categorical-tables)"/);
 
   const interfaceSource = await readFile(new URL("../app/stats-library.tsx", import.meta.url), "utf8");
   const stylesheet = await readFile(new URL("../app/globals.css", import.meta.url), "utf8");
-  assert.doesNotMatch(interfaceSource, /searchOpen|search-trigger|Search library/);
+  assert.match(interfaceSource, /searchOpen/);
+  assert.match(interfaceSource, /Search topics, formulas, tags/);
+  assert.match(interfaceSource, /activeTag/);
+  assert.match(interfaceSource, /Related topics/);
+  assert.match(interfaceSource, /note\.related\?\.includes\(activeNote\.id\)/);
+  assert.match(interfaceSource, /Recently updated/);
   assert.match(stylesheet, /--paper:\s*#080808/);
   assert.match(stylesheet, /body\s*\{[^}]*font-size:\s*16px/);
   assert.match(stylesheet, /\.math-inline\s*\{[^}]*vertical-align:\s*baseline/);
@@ -80,6 +96,9 @@ test("keeps every canonical note synchronized with the deployable content layer"
   assert.match(interfaceSource, />Expand all<\/button>/);
   assert.match(interfaceSource, />Collapse all<\/button>/);
   assert.match(stylesheet, /\.library-section:not\(\[open\]\)/);
+  assert.match(stylesheet, /\.search-layer/);
+  assert.match(stylesheet, /\.note-meta/);
+  assert.match(stylesheet, /\.related-topics/);
 
   const contentParser = await readFile(new URL("../app/content.tsx", import.meta.url), "utf8");
   assert.match(contentParser, /<details open className=\{`md-fold/);

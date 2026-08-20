@@ -9,7 +9,7 @@ export async function generateMetadata(): Promise<Metadata> {
   const protocol = requestHeaders.get("x-forwarded-proto") ?? (host.includes("localhost") ? "http" : "https");
   const origin = `${protocol}://${host}`;
   const title = "Stat Atlas — Statistics Library";
-  const description = "Statistics notes organized by foundations, inference, models, and applied topics.";
+  const description = "An evolving, searchable reference for statistical ideas, derivations, formulas, algorithms, and examples.";
   return {
     title,
     description,

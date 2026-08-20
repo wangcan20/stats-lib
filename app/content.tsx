@@ -1,7 +1,7 @@
 "use client";
 
 import katex from "katex";
-import type { Format, SectionSelector, TopicPart, TopicSource } from "./library-data";
+import type { Format, NoteSource, SectionSelector, TopicPart } from "./library-data";
 
 export type LibrarySection = {
   id: string;
@@ -200,12 +200,12 @@ function markdownPartSections(part: TopicPart): LibrarySection[] {
   });
 }
 
-export function parseTopic(topic: TopicSource) {
-  const sections = uniqueSectionIds(topic.parts.flatMap((part) => part.format === "markdown" ? markdownPartSections(part) : texPartSections(part)));
-  if (!topic.combineSections || !sections.length) return sections;
+export function parseNote(note: NoteSource) {
+  const sections = uniqueSectionIds(note.parts.flatMap((part) => part.format === "markdown" ? markdownPartSections(part) : texPartSections(part)));
+  if (!note.combineSections || !sections.length) return sections;
   return [{
-    id: slugify(topic.combineSections),
-    title: topic.combineSections,
+    id: slugify(note.combineSections),
+    title: note.combineSections,
     body: sections.map((section) => section.body).join("\n"),
     format: sections[0].format,
   }];
