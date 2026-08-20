@@ -1,25 +1,31 @@
 # Stat Atlas
 
-A compact, searchable knowledge library built from the notes in `../source`.
+A compact, searchable knowledge library built from personal statistics notes.
+
+Live site: <https://wangcan20.github.io/stats-lib/>
 
 ## Content model
 
-The library has three navigation layers:
+The library has three browsing layers:
 
-1. collection — foundations, inference/study design, models/computation, modern prediction;
-2. topic — a coherent note set such as probability, AIPW, or survival analysis;
-3. section — the original chapter or mindmap branch.
+1. collection — mathematical foundations, statistical inference, statistical models, semiparametric and causal inference, computational statistics, and specialized topics;
+2. topic group — a coherent family such as probability, point estimation, or regression models;
+3. note — a concept, derivation, formula sheet, example, algorithm, or reference page.
 
-The mixed `notes-other.tex` source is presented as separate focused topics without discarding its source structure. TeX and Markdown are parsed into one visual system, and formulas are rendered with KaTeX.
+Each note has one primary location plus optional tags and related-note links. TeX and Markdown are parsed into one visual system, and formulas are rendered with KaTeX.
 
 ## Updating the library
 
-Edit the canonical notes in `../source`, then refresh the site copy:
+The deployable note snapshots live in `content/`. When working from the original local workspace, edit the canonical notes in the sibling `source/` directory and refresh the snapshots with:
 
 ```bash
 npm run sync-content
 ```
 
-Run the local library with `npm run dev`, and verify a production build with `npm test`.
+Run the local library with `npm run dev`. Verify the full application with `npm test`, or build the static GitHub Pages version with `npm run build:pages`.
 
-The source-to-topic classification lives in `app/library-data.ts`. Add a new topic there after adding its file to the sync list in `scripts/sync-content.mjs`.
+The taxonomy and note metadata live in `app/library-data.ts`. Add a note there after adding its source file to the sync list in `scripts/sync-content.mjs`.
+
+## Deployment
+
+Pushes to `main` are deployed automatically by `.github/workflows/pages.yml`. The workflow validates the formulas and builds the static site before publishing it to GitHub Pages.

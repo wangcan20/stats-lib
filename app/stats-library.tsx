@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState, type RefObject } from "react";
 import { collections, groups, notes, type NoteSource } from "./library-data";
-import { MarkdownBody, parseNote, plainText, TexBody, type LibrarySection } from "./content";
+import { MarkdownBody, parseNote, plainText, TexBody } from "./content";
 
 type SearchItem = { note: NoteSource; haystack: string };
 
@@ -23,7 +23,7 @@ export function StatsLibrary() {
 
   const parsed = useMemo(() => new Map(notes.map((note) => [note.id, parseNote(note)])), []);
   const activeNote = notes.find((note) => note.id === activeNoteId) ?? null;
-  const sections = activeNote ? parsed.get(activeNote.id) ?? [] : [];
+  const sections = useMemo(() => activeNote ? parsed.get(activeNote.id) ?? [] : [], [activeNote, parsed]);
   const collection = activeNote ? collections.find((item) => item.id === activeNote.collection) : null;
   const group = activeNote ? groups.find((item) => item.id === activeNote.group) : null;
   const allTags = useMemo(() => [...new Set(notes.flatMap((note) => note.tags))].sort(), []);
@@ -75,10 +75,13 @@ export function StatsLibrary() {
   };
 
   useEffect(() => {
-    setActiveNoteId(noteFromLocation());
+    const initialSync = window.setTimeout(() => setActiveNoteId(noteFromLocation()), 0);
     const onPopState = () => setActiveNoteId(noteFromLocation());
     window.addEventListener("popstate", onPopState);
-    return () => window.removeEventListener("popstate", onPopState);
+    return () => {
+      window.clearTimeout(initialSync);
+      window.removeEventListener("popstate", onPopState);
+    };
   }, []);
 
   useEffect(() => {
@@ -193,8 +196,9 @@ function SearchPalette({ query, setQuery, activeTag, setActiveTag, tags, results
   onOpen: (id: string) => void;
   onClose: () => void;
 }) {
-  return <div className="search-layer" role="dialog" aria-modal="true" aria-label="Search the library" onMouseDown={(event) => event.currentTarget === event.target && onClose()}>
-    <div className="search-panel">
+  return <div className="search-layer">
+    <button className="search-backdrop" aria-label="Close search" onClick={onClose} />
+    <div className="search-panel" role="dialog" aria-modal="true" aria-label="Search the library">
       <div className="search-input-row"><input ref={searchRef} value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search topics, formulas, tags…" /><button onClick={onClose}>Close</button></div>
       <div className="tag-filter"><button className={!activeTag ? "active" : ""} onClick={() => setActiveTag(null)}>All</button>{tags.map((tag) => <button key={tag} className={activeTag === tag ? "active" : ""} onClick={() => setActiveTag(activeTag === tag ? null : tag)}>#{tag}</button>)}</div>
       <div className="search-results">{results.map(({ note }) => {
