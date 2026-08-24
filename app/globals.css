@@ -87,6 +87,9 @@ summary::-webkit-details-marker { display: none; }
 .note-list { list-style: none; margin: 0; padding: 0; }
 .note-list > li { position: relative; padding: 7px 0 9px 17px; }
 .note-list > li::before { content: "–"; position: absolute; left: 0; color: var(--faint); }
+.note-list.ordered { counter-reset: note-item; }
+.note-list.ordered > li { counter-increment: note-item; padding-left: 28px; }
+.note-list.ordered > li::before { content: "(" counter(note-item) ")"; font: 10px/1.7 var(--mono); }
 .item-label { display: block; margin-bottom: 4px; font-weight: 650; }
 .rich-text { overflow-wrap: anywhere; }
 .math-inline { display: inline; vertical-align: baseline; margin: 0 .08em; white-space: nowrap; }

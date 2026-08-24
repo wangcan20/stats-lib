@@ -10,6 +10,7 @@ const files = [
   "notes-other.tex",
   "survival.md",
   "conformal-prediction.md",
+  "prediction-powered-inference.tex",
 ];
 
 await mkdir(contentRoot, { recursive: true });

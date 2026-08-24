@@ -5,6 +5,7 @@ import methods from "../content/Methods_2024.tex?raw";
 import other from "../content/notes-other.tex?raw";
 import survival from "../content/survival.md?raw";
 import conformal from "../content/conformal-prediction.md?raw";
+import ppi from "../content/prediction-powered-inference.tex?raw";
 
 export type CollectionId = "mathematical-foundations" | "statistical-inference" | "statistical-models" | "semiparametric-causal" | "computational-statistics" | "specialized-topics";
 export type Format = "tex" | "markdown";
@@ -78,6 +79,7 @@ export const groups = [
   { id: "study-design", collection: "specialized-topics" as const, title: "Study Design" },
   { id: "survival-analysis", collection: "specialized-topics" as const, title: "Survival Analysis" },
   { id: "conformal-prediction", collection: "specialized-topics" as const, title: "Conformal Prediction" },
+  { id: "prediction-powered-inference", collection: "specialized-topics" as const, title: "Prediction-Powered Inference" },
 ];
 
 const page = (note: NoteSource) => note;
@@ -148,4 +150,11 @@ export const notes: NoteSource[] = [
     { format: "tex", raw: probability, selectors: [{ title: "Chapter 7: Failure Time, Survival Function and Hazard Function", rename: "Cure Models", includeItems: ["Cure models"] }] },
   ] }),
   page({ id: "conformal-prediction", title: "Conformal Prediction", collection: "specialized-topics", group: "conformal-prediction", pageType: "Concept", maturity: "Developed", updated: "2026", tags: ["Prediction", "Uncertainty", "Coverage", "Conformal"], related: ["linear-regression", "kernel-regression", "survival-analysis"], parts: [{ format: "markdown", raw: conformal }] }),
+  page({ id: "prediction-powered-inference", title: "Prediction-Powered Inference", collection: "specialized-topics", group: "prediction-powered-inference", pageType: "Concept", maturity: "Developed", updated: "2026-08-24", tags: ["Prediction-Powered Inference", "Prediction-Assisted Inference", "M-Estimation", "Machine Learning", "Inference"], related: ["expectation-moments", "linear-regression", "logistic-regression", "asymptotic-theory", "confidence-intervals"], parts: [{ format: "tex", raw: ppi, selectors: [
+    { title: "Setup" },
+    { title: "Base Assumptions", rename: "Assumptions" },
+    { title: "Mean Estimation" },
+    { title: "General Estimation" },
+    { title: "Examples and Algorithms", rename: "Examples & Algorithms" },
+  ] }] }),
 ];

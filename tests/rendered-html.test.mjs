@@ -32,6 +32,7 @@ test("renders the refactored library taxonomy and social metadata", async () => 
   assert.match(html, />Semiparametric &amp; Causal Inference</i);
   assert.match(html, />Computational Statistics</i);
   assert.match(html, />Specialized Topics</i);
+  assert.match(html, />Prediction-Powered Inference</i);
   assert.match(html, />Common Distributions</i);
   assert.match(html, />Regression Models</i);
   assert.match(html, />Expectation–Maximization</i);
@@ -54,6 +55,7 @@ test("keeps every canonical note synchronized with the deployable content layer"
     "notes-other.tex",
     "survival.md",
     "conformal-prediction.md",
+    "prediction-powered-inference.tex",
   ];
   for (const file of files) {
     const [source, bundled] = await Promise.all([
@@ -67,6 +69,8 @@ test("keeps every canonical note synchronized with the deployable content layer"
   assert.equal((data.match(/\bpage\(\{ id:\s*"[^"]+"/g) ?? []).length >= 30, true);
   assert.match(data, /id:\s*"conformal-prediction"/);
   assert.match(data, /id:\s*"survival-analysis"/);
+  assert.match(data, /id:\s*"prediction-powered-inference"/);
+  assert.match(data, /group:\s*"prediction-powered-inference"/);
   assert.match(data, /id:\s*"common-distributions"/);
   assert.match(data, /type PageType = "Concept" \| "Derivation" \| "Formula Sheet" \| "Example" \| "Algorithm" \| "Reference"/);
   assert.match(data, /type Maturity = "Stub" \| "Notes" \| "Developed" \| "Reference"/);

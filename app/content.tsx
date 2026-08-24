@@ -20,6 +20,13 @@ const macros = {
   "\\where": "\\text{where}",
   "\\Eg": "\\text{E.g.}",
   "\\Specificity": "\\operatorname{Specificity}",
+  "\\Var": "\\operatorname{Var}",
+  "\\argmin": "\\operatorname*{arg\\,min}",
+  "\\PP": "\\mathrm{PP}",
+  "\\class": "\\mathrm{class}",
+  "\\toprule": "\\hline",
+  "\\midrule": "\\hline",
+  "\\bottomrule": "\\hline",
   "\\Prove": "\\text{Prove}",
   "\\If": "\\text{If}",
 };
@@ -366,23 +373,44 @@ function extractItemLabel(item: string) {
   return label ? plainText(label[1]) : "";
 }
 
-export function TexBody({ body }: { body: string }) {
+function TexFragment({ body }: { body: string }) {
+  const ordered = /\\begin\{enumerate\}/.test(body);
   const prepared = body
     .replace(/\\begin\{document\}|\\end\{document\}|\\begin\{multicols\}\{\d+\}|\\end\{multicols\}/g, "")
-    .replace(/\\begin\{itemize\}|\\end\{itemize\}/g, "")
+    .replace(/\\begin\{(?:itemize|enumerate)\}(?:\[[^\]]*\])?|\\end\{(?:itemize|enumerate)\}/g, "")
+    .replace(/\\begin\{center\}|\\end\{center\}/g, "")
     .replace(/\\paragraph\*?\{([^}]*)\}/g, "\\item \\textbf{$1}")
     .trim();
-  const parts = prepared.split(/\\item(?:\[[^\]]*\])?/g).map((part) => part.trim()).filter(Boolean);
-  if (parts.length <= 1) return <div className="prose-block"><RichText raw={prepared} /></div>;
+  const firstItem = prepared.search(/\\item(?:\[[^\]]*\])?/);
+  if (firstItem < 0) return <div className="prose-block"><RichText raw={prepared} /></div>;
+  const intro = prepared.slice(0, firstItem).trim();
+  const parts = prepared.slice(firstItem).split(/\\item(?:\[[^\]]*\])?/g).map((part) => part.trim()).filter(Boolean);
+  const List = ordered ? "ol" : "ul";
   return (
-    <ul className="note-list">
-      {parts.map((part, index) => {
-        const label = extractItemLabel(part);
-        const itemBody = label ? part.replace(/^\s*(?:\\hl\{)?\\textbf\{[^}]*\}\}?\s*/, "") : part;
-        return <li key={index}>{label ? <strong className="item-label">{label}</strong> : null}<RichText raw={itemBody} /></li>;
-      })}
-    </ul>
+    <>
+      {intro ? <div className="prose-block"><RichText raw={intro} /></div> : null}
+      <List className={`note-list${ordered ? " ordered" : ""}`}>
+        {parts.map((part, index) => {
+          const label = extractItemLabel(part);
+          const itemBody = label ? part.replace(/^\s*(?:\\hl\{)?\\textbf\{[^}]*\}\}?\s*/, "") : part;
+          return <li key={index}>{label ? <strong className="item-label">{label}</strong> : null}<RichText raw={itemBody} /></li>;
+        })}
+      </List>
+    </>
   );
+}
+
+export function TexBody({ body }: { body: string }) {
+  const matches = [...body.matchAll(/\\subsection\*?\{([^}]*)\}/g)];
+  if (!matches.length) return <TexFragment body={body} />;
+  const intro = body.slice(0, matches[0].index).trim();
+  return <div className="tex-folds">
+    {plainText(intro) ? <TexFragment body={intro} /> : null}
+    {matches.map((match, index) => <details open className="md-fold level-2 tex-fold" key={`${match[1]}-${index}`}>
+      <summary><span className="md-fold-title" role="heading" aria-level={3}>{plainText(match[1])}</span></summary>
+      <div className="md-fold-body"><TexFragment body={body.slice((match.index ?? 0) + match[0].length, matches[index + 1]?.index ?? body.length)} /></div>
+    </details>)}
+  </div>;
 }
 
 type MdListNode = { text: string; indent: number };

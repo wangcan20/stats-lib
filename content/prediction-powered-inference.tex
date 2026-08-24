@@ -1,0 +1,1226 @@
+\section{Setup}
+
+Prediction-powered inference (PPI) considers a setting in which
+gold-standard labels are expensive, while predictions from a machine
+learning model are available at much larger scale.
+
+Let
+\[
+(X,Y) \sim P,
+\]
+where $X \in \mathcal{X}$ denotes the covariates and $Y \in \mathcal{Y}$
+denotes the gold-standard outcome.
+
+The goal is to conduct valid statistical inference on a population
+parameter
+\[
+\theta^* = \theta(P),
+\]
+rather than to improve predictive accuracy itself.
+
+Typical examples include:
+\[
+\E[Y],
+\qquad
+\text{a quantile of } Y,
+\qquad
+\text{a linear regression coefficient},
+\qquad
+\text{a logistic regression coefficient}.
+\]
+
+We observe two samples.
+
+\subsection{Labeled sample}
+
+The labeled sample consists of
+\[
+(X_i,Y_i), \qquad i=1,\ldots,n,
+\]
+where both $X_i$ and the gold-standard outcome $Y_i$ are observed.
+
+Denote
+\[
+\mathcal{D}_{L}
+=
+\{(X_i,Y_i)\}_{i=1}^n.
+\]
+
+\subsection{Unlabeled sample}
+
+The unlabeled sample consists conceptually of
+\[
+(\widetilde X_i,\widetilde Y_i),
+\qquad i=1,\ldots,N,
+\]
+but only $\widetilde X_i$ is observed.
+
+Typically,
+\[
+N \gg n.
+\]
+
+A prediction rule
+\[
+f:\mathcal{X}\rightarrow\mathcal{Y}
+\]
+can be applied to both samples, giving
+\[
+f(X_i)
+\]
+for the labeled observations and
+\[
+f(\widetilde X_i)
+\]
+for the unlabeled observations.
+
+The central idea of PPI is
+\[
+\boxed{
+\text{large-scale predictions estimate the main signal}
++
+\text{small-scale labels estimate the prediction-induced error}.
+}
+\]
+
+Thus, predictions are treated as auxiliary information rather than as
+gold-standard outcomes.
+
+% ============================================================
+\section{Base Assumptions}
+
+The basic formulation of PPI relies on the following setup.
+
+\subsection{Common population}
+
+The labeled and unlabeled observations arise from the same target
+population:
+\[
+(X_i,Y_i) \overset{\mathrm{iid}}{\sim} P,
+\]
+and conceptually
+\[
+(\widetilde X_i,\widetilde Y_i)
+\overset{\mathrm{iid}}{\sim} P.
+\]
+
+Thus, in the base setting,
+\[
+P_L=P_U=P.
+\]
+
+In particular, there is no distribution shift between the labeled and
+unlabeled samples.
+
+\subsection{Independence of labeled and unlabeled samples}
+
+The two samples are mutually independent:
+\[
+\mathcal{D}_L
+\perp\!\!\!\perp
+\mathcal{D}_U.
+\]
+
+\subsection{Fixed prediction rule}
+
+The prediction rule $f$ is assumed to be independent of the inference
+samples. For example, $f$ may be trained on a separate external dataset.
+
+Thus, conditional on the trained predictor, $f$ can be treated as fixed
+during inference.
+
+\subsection{No correctness assumption on the prediction model}
+
+PPI does not require
+\[
+f(X)=\E[Y\mid X],
+\]
+nor does it require
+\[
+\E[f(X)-Y]=0.
+\]
+
+The prediction model may be biased, misspecified, or otherwise imperfect.
+
+The key distinction is:
+\[
+\boxed{
+\text{prediction quality primarily affects efficiency, not validity}.
+}
+\]
+
+Validity is obtained by explicitly correcting the error induced by
+replacing $Y$ with $f(X)$.
+
+% ============================================================
+\section{Mean Estimation}
+
+Consider first the simplest target:
+\[
+\theta^*=\E[Y].
+\]
+
+\subsection{Classical estimator}
+
+Using only the labeled sample,
+\[
+\widehat{\theta}^{\class}
+=
+\frac{1}{n}\sum_{i=1}^n Y_i.
+\]
+
+Its variance is
+\[
+\Var(\widehat{\theta}^{\class})
+=
+\frac{\Var(Y)}{n}.
+\]
+
+This estimator is valid but may be inefficient when $n$ is small.
+
+\subsection{Naive imputation}
+
+A natural but generally invalid estimator is
+\[
+\widetilde{\theta}^{\,f}
+=
+\frac{1}{N}\sum_{i=1}^N f(\widetilde X_i).
+\]
+
+Although this quantity may have very small sampling variance when $N$ is
+large,
+\[
+\E[\widetilde{\theta}^{\,f}]
+=
+\E[f(X)],
+\]
+which need not equal $\E[Y]$.
+
+Thus, a large unlabeled sample cannot eliminate systematic prediction
+bias.
+
+\subsection{Rectifier}
+
+Define the mean rectifier as
+\[
+\Delta
+=
+\E[f(X)-Y].
+\]
+
+Then
+\[
+\E[Y]
+=
+\E[f(X)]-\Delta.
+\]
+
+The labeled sample provides an estimator of the rectifier:
+\[
+\widehat{\Delta}
+=
+\frac{1}{n}
+\sum_{i=1}^n
+\{f(X_i)-Y_i\}.
+\]
+
+Hence the prediction-powered estimator is
+\[
+\boxed{
+\widehat{\theta}^{\PP}
+=
+\frac{1}{N}\sum_{i=1}^N f(\widetilde X_i)
+-
+\frac{1}{n}\sum_{i=1}^n
+\{f(X_i)-Y_i\}.
+}
+\]
+
+Equivalently,
+\[
+\widehat{\theta}^{\PP}
+=
+\overline f_U-\overline f_L+\overline Y_L,
+\]
+or
+\[
+\boxed{
+\widehat{\theta}^{\PP}
+=
+\overline Y_L
++
+(\overline f_U-\overline f_L).
+}
+\]
+
+This second representation shows that PPI can be viewed as a classical
+estimator plus an auxiliary-information adjustment.
+
+\subsection{Validity}
+
+Since
+\[
+\E[\overline f_U]=\E[f(X)]
+\]
+and
+\[
+\E[\widehat{\Delta}]
+=
+\E[f(X)-Y],
+\]
+we have
+\[
+\E[\widehat{\theta}^{\PP}]
+=
+\E[f(X)]
+-
+\E[f(X)-Y]
+=
+\E[Y].
+\]
+
+Therefore,
+\[
+\boxed{
+\E[\widehat{\theta}^{\PP}]=\theta^*
+}
+\]
+even when the predictor is systematically biased.
+
+\subsection{Efficiency}
+
+Because the labeled and unlabeled samples are independent,
+\[
+\boxed{
+\Var(\widehat{\theta}^{\PP})
+=
+\frac{\Var(f(X))}{N}
++
+\frac{\Var(f(X)-Y)}{n}.
+}
+\]
+
+By comparison,
+\[
+\Var(\widehat{\theta}^{\class})
+=
+\frac{\Var(Y)}{n}.
+\]
+
+When $N\gg n$,
+\[
+\frac{\Var(f(X))}{N}
+\]
+is often negligible, and hence
+\[
+\Var(\widehat{\theta}^{\PP})
+\approx
+\frac{\Var(f(X)-Y)}{n}.
+\]
+
+Thus, when $f(X)$ captures substantial variation in $Y$,
+\[
+\Var(f(X)-Y)
+<
+\Var(Y),
+\]
+and the prediction-powered estimator is more efficient.
+
+The essential variance-reduction mechanism is therefore
+\[
+\boxed{
+\Var(Y)
+\quad\longrightarrow\quad
+\Var(f(X)-Y)
+}
+\]
+for the component that must be estimated using the scarce labeled sample.
+
+A corresponding asymptotic confidence interval is
+\[
+\widehat{\theta}^{\PP}
+\pm
+z_{1-\alpha/2}
+\sqrt{
+\frac{\widehat{\sigma}_{f-Y}^2}{n}
++
+\frac{\widehat{\sigma}_{f}^2}{N}
+}.
+\]
+
+% ============================================================
+\section{General Estimation}
+
+The mean example can be generalized to a broad class of convex
+$M$-estimation problems.
+
+\subsection{Population optimization problem}
+
+Suppose the target parameter is defined by
+\[
+\boxed{
+\theta^*
+\in
+\arg\min_{\theta\in\Theta}
+\E[\ell_\theta(X,Y)],
+}
+\]
+where $\ell_\theta(x,y)$ is convex in $\theta$.
+
+Examples include squared loss, logistic loss, and quantile loss.
+
+Let
+\[
+g_\theta(x,y)
+\in
+\partial_\theta \ell_\theta(x,y)
+\]
+denote a gradient or subgradient.
+
+Under a suitable nondegeneracy condition, the target parameter satisfies
+the population estimating equation
+\[
+\boxed{
+\E[g_{\theta^*}(X,Y)]=0.
+}
+\]
+
+Define
+\[
+\Psi(\theta)
+=
+\E[g_\theta(X,Y)].
+\]
+
+Then
+\[
+\Psi(\theta^*)=0.
+\]
+
+\subsection{Prediction-based estimating equation}
+
+Replacing $Y$ by the prediction $f(X)$ gives
+\[
+g_\theta(X,f(X)).
+\]
+
+Define the prediction-based population estimating function
+\[
+\boxed{
+g_\theta^f
+=
+\E[g_\theta(X,f(X))].
+}
+\]
+
+In general,
+\[
+g_\theta^f
+\neq
+\E[g_\theta(X,Y)],
+\]
+so solving
+\[
+g_\theta^f=0
+\]
+may lead to invalid inference.
+
+\subsection{General rectifier}
+
+Define the rectifier
+\[
+\boxed{
+\Delta_\theta
+=
+\E\left[
+g_\theta(X,Y)
+-
+g_\theta(X,f(X))
+\right].
+}
+\]
+
+Then the true population estimating equation admits the exact
+decomposition
+\[
+\boxed{
+\E[g_\theta(X,Y)]
+=
+g_\theta^f
++
+\Delta_\theta.
+}
+\]
+
+At the target parameter,
+\[
+\boxed{
+g_{\theta^*}^f
++
+\Delta_{\theta^*}
+=
+0.
+}
+\]
+
+This is the central identity underlying general prediction-powered
+inference.
+
+The key point is that PPI does not generally correct the parameter
+$\theta$ directly. Rather, it corrects the estimating equation:
+\[
+\boxed{
+\text{true estimating equation}
+=
+\text{prediction-based estimating equation}
++
+\text{rectifier}.
+}
+\]
+
+\subsection{Sample estimators}
+
+The prediction component can be estimated using the large unlabeled
+sample:
+\[
+\boxed{
+\widehat g_\theta^f
+=
+\frac{1}{N}
+\sum_{i=1}^N
+g_\theta
+\bigl(
+\widetilde X_i,
+f(\widetilde X_i)
+\bigr).
+}
+\]
+
+The rectifier is estimated using the labeled sample:
+\[
+\boxed{
+\widehat{\Delta}_\theta
+=
+\frac{1}{n}
+\sum_{i=1}^n
+\left[
+g_\theta(X_i,Y_i)
+-
+g_\theta(X_i,f(X_i))
+\right].
+}
+\]
+
+Thus the prediction-powered estimating function is
+\[
+\boxed{
+\widehat\Psi^{\PP}(\theta)
+=
+\widehat g_\theta^f
++
+\widehat{\Delta}_\theta.
+}
+\]
+
+The target parameter should satisfy
+\[
+\widehat\Psi^{\PP}(\theta^*)
+\approx 0.
+\]
+
+\subsection{Confidence-set construction}
+
+For each candidate $\theta$, one may construct a confidence region
+$R_\delta(\theta)$ for the rectifier:
+\[
+\Pr\left(
+\Delta_\theta
+\in
+R_\delta(\theta)
+\right)
+\ge
+1-\delta,
+\]
+and a confidence region $T_{\alpha-\delta}(\theta)$ for the prediction
+component:
+\[
+\Pr\left(
+g_\theta^f
+\in
+T_{\alpha-\delta}(\theta)
+\right)
+\ge
+1-(\alpha-\delta).
+\]
+
+Since
+\[
+g_{\theta^*}^f+\Delta_{\theta^*}=0,
+\]
+a prediction-powered confidence set is
+\[
+\boxed{
+C_\alpha^{\PP}
+=
+\left\{
+\theta:
+0
+\in
+R_\delta(\theta)
++
+T_{\alpha-\delta}(\theta)
+\right\},
+}
+\]
+where $+$ denotes the Minkowski sum.
+
+Under the stated validity conditions,
+\[
+\boxed{
+\Pr\left(
+\theta^*
+\in
+C_\alpha^{\PP}
+\right)
+\ge
+1-\alpha.
+}
+\]
+
+In practical implementations, the two independent components are often
+combined directly through a central limit theorem:
+\[
+\widehat\Psi^{\PP}(\theta)
+=
+\widehat g_\theta^f
++
+\widehat\Delta_\theta,
+\]
+with approximate covariance
+\[
+\Var\left\{
+\widehat\Psi^{\PP}(\theta)
+\right\}
+\approx
+\frac{\Sigma_\Delta(\theta)}{n}
++
+\frac{\Sigma_g(\theta)}{N}.
+\]
+
+The resulting confidence set can then be viewed as an inversion of the
+corrected estimating equation:
+\[
+\boxed{
+\text{retain }\theta
+\text{ whenever }
+0
+\text{ is statistically compatible with }
+\widehat\Psi^{\PP}(\theta).
+}
+\]
+
+% ============================================================
+\section{Examples and Algorithms}
+
+\subsection{Mean estimation}
+
+For mean estimation, take
+\[
+\ell_\theta(y)
+=
+\frac{1}{2}(y-\theta)^2.
+\]
+
+Then
+\[
+g_\theta(y)
+=
+\theta-y.
+\]
+
+The prediction-based estimating function is
+\[
+g_\theta^f
+=
+\E[\theta-f(X)]
+=
+\theta-\E[f(X)].
+\]
+
+The rectifier is
+\[
+\begin{aligned}
+\Delta_\theta
+&=
+\E[
+(\theta-Y)-(\theta-f(X))
+]
+\\
+&=
+\E[f(X)-Y].
+\end{aligned}
+\]
+
+Thus $\Delta_\theta$ does not depend on $\theta$, and the corrected
+estimating equation is
+\[
+\theta-\E[f(X)]
++
+\E[f(X)-Y]
+=
+0.
+\]
+
+Solving explicitly gives
+\[
+\theta^*
+=
+\E[f(X)]
+-
+\E[f(X)-Y],
+\]
+leading to
+\[
+\widehat\theta^{\PP}
+=
+\overline f_U
+-
+\overline{(f-Y)}_L.
+\]
+
+Thus mean estimation is a case in which the general estimating equation
+has a closed-form solution.
+
+% ------------------------------------------------------------
+\subsection{Quantile estimation}
+
+Let $\theta^*$ denote the $q$-quantile of $Y$. It can be represented as a
+minimizer of the quantile loss.
+
+A suitable subgradient is
+\[
+\boxed{
+g_\theta(y)
+=
+\mathbf{1}\{y\leq\theta\}-q.
+}
+\]
+
+Hence
+\[
+\E[g_\theta(Y)]
+=
+F_Y(\theta)-q,
+\]
+and the target satisfies
+\[
+F_Y(\theta^*)=q.
+\]
+
+The prediction component is
+\[
+g_\theta^f
+=
+F_f(\theta)-q,
+\]
+where
+\[
+F_f(\theta)
+=
+\Pr(f(X)\leq\theta).
+\]
+
+The rectifier is
+\[
+\begin{aligned}
+\Delta_\theta
+&=
+\E\left[
+\mathbf{1}\{Y\leq\theta\}
+-
+\mathbf{1}\{f(X)\leq\theta\}
+\right]
+\\
+&=
+F_Y(\theta)-F_f(\theta).
+\end{aligned}
+\]
+
+Therefore,
+\[
+g_\theta^f+\Delta_\theta
+=
+F_Y(\theta)-q.
+\]
+
+The sample estimators are
+\[
+\widehat F_f(\theta)
+=
+\frac{1}{N}
+\sum_{i=1}^N
+\mathbf{1}
+\{f(\widetilde X_i)\leq\theta\},
+\]
+and
+\[
+\widehat\Delta_\theta
+=
+\frac{1}{n}
+\sum_{i=1}^n
+\left[
+\mathbf{1}\{Y_i\leq\theta\}
+-
+\mathbf{1}\{f(X_i)\leq\theta\}
+\right].
+\]
+
+Thus
+\[
+\widehat\Psi^{\PP}(\theta)
+=
+\widehat F_f(\theta)
++
+\widehat\Delta_\theta
+-
+q.
+\]
+
+Unlike the mean case, $\theta$ enters through indicator functions, so
+there is generally no closed-form solution. Instead, inference is
+performed by evaluating candidate values of $\theta$ and retaining those
+for which
+\[
+\widehat\Psi^{\PP}(\theta)
+\]
+is statistically compatible with zero.
+
+This example illustrates why general PPI is naturally formulated as
+correction of the estimating equation rather than direct correction of
+the parameter.
+
+% ------------------------------------------------------------
+\subsection{Logistic regression}
+
+Suppose $Y\in\{0,1\}$ and define the population logistic regression
+coefficient by
+\[
+\theta^*
+=
+\arg\min_\theta
+\E
+\left[
+-YX^\top\theta
++
+\log(1+\exp(X^\top\theta))
+\right].
+\]
+
+Define
+\[
+\mu_\theta(x)
+=
+\frac{1}{1+\exp(-x^\top\theta)}.
+\]
+
+The gradient is
+\[
+\boxed{
+g_\theta(x,y)
+=
+x\{\mu_\theta(x)-y\}.
+}
+\]
+
+Hence the true population score equation is
+\[
+\E[
+X\{\mu_{\theta^*}(X)-Y\}
+]
+=
+0.
+\]
+
+The prediction-based component is
+\[
+\boxed{
+g_\theta^f
+=
+\E[
+X\{\mu_\theta(X)-f(X)\}
+].
+}
+\]
+
+The rectifier is
+\[
+\begin{aligned}
+\Delta_\theta
+&=
+\E\left[
+X\{\mu_\theta(X)-Y\}
+-
+X\{\mu_\theta(X)-f(X)\}
+\right]
+\\
+&=
+\E[X\{f(X)-Y\}].
+\end{aligned}
+\]
+
+Thus,
+\[
+\boxed{
+\Delta_\theta
+\equiv
+\Delta
+=
+\E[X(f(X)-Y)],
+}
+\]
+which is independent of $\theta$.
+
+The sample estimators are
+\[
+\widehat g_\theta^f
+=
+\frac{1}{N}
+\sum_{i=1}^N
+\widetilde X_i
+\left[
+\mu_\theta(\widetilde X_i)
+-
+f(\widetilde X_i)
+\right],
+\]
+and
+\[
+\widehat\Delta
+=
+\frac{1}{n}
+\sum_{i=1}^n
+X_i
+\{f(X_i)-Y_i\}.
+\]
+
+The corrected score is
+\[
+\boxed{
+\widehat\Psi^{\PP}(\theta)
+=
+\widehat g_\theta^f
++
+\widehat\Delta.
+}
+\]
+
+Because $\mu_\theta(x)$ is nonlinear in $\theta$, this estimating
+equation does not generally admit a closed-form solution. Confidence
+sets are therefore obtained through test inversion over candidate
+values of $\theta$.
+
+For a $d$-dimensional parameter, inference can be based on the
+coordinate-wise conditions
+\[
+\left|
+\widehat\Psi_j^{\PP}(\theta)
+\right|
+\leq
+w_{\alpha,j}(\theta),
+\qquad j=1,\ldots,d,
+\]
+with multiplicity adjustment as needed.
+
+% ------------------------------------------------------------
+\subsection{Linear regression}
+
+Define the population least-squares coefficient by
+\[
+\theta^*
+=
+\arg\min_\theta
+\E[(Y-X^\top\theta)^2].
+\]
+
+The population normal equation is
+\[
+\E[
+X(X^\top\theta^*-Y)
+]
+=
+0.
+\]
+
+Let
+\[
+A=\E[XX^\top],
+\]
+and assume $A$ is nonsingular. Then
+\[
+\theta^*
+=
+A^{-1}\E[XY].
+\]
+
+A gradient is
+\[
+g_\theta(X,Y)
+=
+X(X^\top\theta-Y).
+\]
+
+The prediction-based component is
+\[
+g_\theta^f
+=
+\E[
+X(X^\top\theta-f(X))
+].
+\]
+
+The rectifier is
+\[
+\begin{aligned}
+\Delta_\theta
+&=
+\E\left[
+X(X^\top\theta-Y)
+-
+X(X^\top\theta-f(X))
+\right]
+\\
+&=
+\E[X(f(X)-Y)].
+\end{aligned}
+\]
+
+Again, the rectifier does not depend on $\theta$.
+
+The corrected population equation is
+\[
+A\theta
+-
+\E[Xf(X)]
++
+\E[X(f(X)-Y)]
+=
+0.
+\]
+
+Thus
+\[
+\boxed{
+\theta^*
+=
+A^{-1}\E[Xf(X)]
+-
+A^{-1}\E[X(f(X)-Y)].
+}
+\]
+
+Define
+\[
+\theta^f
+=
+A^{-1}\E[Xf(X)]
+\]
+and
+\[
+\Delta
+=
+A^{-1}\E[X(f(X)-Y)].
+\]
+
+Then
+\[
+\boxed{
+\theta^*
+=
+\theta^f-\Delta.
+}
+\]
+
+This yields a particularly simple sample implementation:
+\[
+\boxed{
+\widehat\theta^{\PP}
+=
+\widetilde X^\dagger f(\widetilde X)
+-
+X^\dagger\{f(X)-Y\},
+}
+\]
+where $\dagger$ denotes the Moore--Penrose pseudoinverse.
+
+Thus, linear-regression PPI can be interpreted as
+\[
+\boxed{
+\text{regression coefficient of predictions}
+-
+\text{regression coefficient of prediction errors}.
+}
+\]
+
+Because the OLS estimating equation is linear in $\theta$, a
+closed-form prediction-powered estimator is available.
+
+Its asymptotic covariance has the generic form
+\[
+\Var(\widehat\theta^{\PP})
+\approx
+\frac{V_\Delta}{n}
++
+\frac{V_f}{N},
+\]
+where $V_\Delta$ and $V_f$ are the appropriate sandwich covariance
+matrices for the rectifier and prediction-based regressions,
+respectively.
+
+% ------------------------------------------------------------
+\subsection{Generic convex estimation}
+
+For a general convex loss,
+\[
+\theta^*
+\in
+\arg\min_\theta
+\E[\ell_\theta(X,Y)],
+\]
+let
+\[
+g_\theta(x,y)
+\in
+\partial_\theta\ell_\theta(x,y).
+\]
+
+For every candidate $\theta$, calculate
+\[
+\boxed{
+\widehat\Delta_\theta
+=
+\frac{1}{n}
+\sum_{i=1}^n
+\left[
+g_\theta(X_i,Y_i)
+-
+g_\theta(X_i,f(X_i))
+\right]
+}
+\]
+and
+\[
+\boxed{
+\widehat g_\theta^f
+=
+\frac{1}{N}
+\sum_{i=1}^N
+g_\theta(
+\widetilde X_i,
+f(\widetilde X_i)
+).
+}
+\]
+
+The corrected estimating function is
+\[
+\boxed{
+\widehat\Psi^{\PP}(\theta)
+=
+\widehat g_\theta^f
++
+\widehat\Delta_\theta.
+}
+\]
+
+Its asymptotic covariance is obtained by combining the two independent
+sampling components:
+\[
+\boxed{
+\widehat\Sigma_{\PP}(\theta)
+=
+\frac{\widehat\Sigma_\Delta(\theta)}{n}
++
+\frac{\widehat\Sigma_g(\theta)}{N}.
+}
+\]
+
+Inference proceeds by retaining candidate values of $\theta$ for which
+zero is statistically compatible with the corrected estimating
+function:
+\[
+\boxed{
+C_\alpha^{\PP}
+=
+\left\{
+\theta:
+0
+\text{ lies in a confidence region for }
+\widehat\Psi^{\PP}(\theta)
+\right\}.
+}
+\]
+
+Thus, the specific PPI algorithms differ primarily in two structural
+properties:
+
+\begin{enumerate}[label=(\arabic*)]
+    \item whether the rectifier $\Delta_\theta$ depends on $\theta$;
+    \item whether the corrected estimating equation can be solved
+    explicitly for $\theta$.
+\end{enumerate}
+
+These distinctions can be summarized as follows.
+
+\begin{center}
+\begin{tabular}{llll}
+\toprule
+Problem
+& Rectifier
+& Depends on $\theta$?
+& Implementation
+\\
+\midrule
+Mean
+& $\E[f(X)-Y]$
+& No
+& Closed form
+\\
+
+Quantile
+&
+$\E[
+\mathbf{1}\{Y\leq\theta\}
+-
+\mathbf{1}\{f(X)\leq\theta\}
+]$
+& Yes
+& Inversion
+\\
+
+Logistic regression
+&
+$\E[X(f(X)-Y)]$
+& No
+& Inversion
+\\
+
+Linear regression
+&
+$\E[X(f(X)-Y)]$
+& No
+& Closed form
+\\
+
+General convex estimation
+&
+$\E[
+g_\theta(X,Y)
+-
+g_\theta(X,f(X))
+]$
+& Generally yes
+& Inversion
+\\
+\bottomrule
+\end{tabular}
+\end{center}

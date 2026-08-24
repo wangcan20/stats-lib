@@ -6,6 +6,9 @@ const macros = {
   "\\hl": "#1", "\\E": "\\mathbb{E}", "\\df": "\\xrightarrow{d}", "\\Bar": "\\overline",
   "\\Conditioned": "\\mid", "\\where": "\\text{where}", "\\Eg": "\\text{E.g.}",
   "\\Specificity": "\\operatorname{Specificity}", "\\Prove": "\\text{Prove}", "\\If": "\\text{If}",
+  "\\Var": "\\operatorname{Var}", "\\argmin": "\\operatorname*{arg\\,min}",
+  "\\PP": "\\mathrm{PP}", "\\class": "\\mathrm{class}",
+  "\\toprule": "\\hline", "\\midrule": "\\hline", "\\bottomrule": "\\hline",
 };
 
 function escapedAt(input, index) {
